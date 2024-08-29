@@ -102,7 +102,9 @@ contract EndorseIntent is FunctionsClient, ConfirmedOwner {
         request.postId = _postId;
     }
 
-
+    /*
+    * Chainlink verification section
+    */
     function sendRequest(
         string memory source,
         bytes memory encryptedSecretsUrls,
@@ -181,11 +183,21 @@ contract EndorseIntent is FunctionsClient, ConfirmedOwner {
     
     }
 
-
-    function withdrawFunds() external onlyOwner {
-        uint256 balance = address(this).balance;
-        payable(owner()).transfer(balance);
+    function getLatestResponse() external view returns (bytes memory) {
+        return s_lastResponse;
     }
 
-    receive() external payable {}
+    /** Chainlink functions end */
+
+    function cancelRequest(uint256 _requestId) external {
+        Request storage request = requests[_requestId];
+        require(msg.sender == request.requester, "Only the requester can cancel");
+        require(!request.completed, "Request already completed");
+
+        // Refund the amount to the requester
+        payable(request.requester).transfer(request.amount);
+
+        // Mark the request as completed
+        request.completed = true;
+    }
 }
