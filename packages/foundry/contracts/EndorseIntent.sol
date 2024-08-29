@@ -6,9 +6,18 @@ import {ConfirmedOwner} from "@chainlink/contracts/src/v0.8/shared/access/Confir
 import {FunctionsRequest} from "@chainlink/contracts/src/v0.8/functions/v1_0_0/libraries/FunctionsRequest.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
 
-contract TweetRequest is FunctionsClient, ConfirmedOwner {
+contract EndorseIntent is FunctionsClient, ConfirmedOwner {
     using Strings for uint256;
     using FunctionsRequest for FunctionsRequest.Request;
+
+    /* define the request struct which will be used to store the request details
+    * requester: the address of the user who made the request
+    * famousAmos: the address of the Amos who accepted the request
+    * message: the message the requester wants to send to the Amos , this will be later encrypted
+    * amount: the amount of ETH the requester is willing to pay for the service
+    * status: a boolean to check if the request has been completed     
+    * postId: the id of the post the Amos will emit and that needs to be verified by a CL function
+    */
     struct Request {
         address requester;
         address famousAmos;
@@ -25,6 +34,12 @@ contract TweetRequest is FunctionsClient, ConfirmedOwner {
     bytes public latestResponse;
     bytes public latestError;
 
+    /*
+    * Events to be emitted when a request is created, accepted or completed
+    * RequestCreated: emitted when a user creates a request
+    * RequestAccepted: emitted when an Amos accepts a request, at this point the Amos will be able to decrypt the message
+    * RequestCompleted: emitted when an Amos completes a request, at this point the requester will be able to verify the post ID
+    */
     event RequestCreated(uint256 indexed requestId, address indexed requester, address indexed famousAmos, string message, uint256 amount);
     event RequestAccepted(uint256 indexed requestId, address indexed famousAmos);
     event RequestCompleted(uint256 indexed requestId, string postId);
@@ -42,6 +57,9 @@ contract TweetRequest is FunctionsClient, ConfirmedOwner {
         address router
     ) FunctionsClient(router) ConfirmedOwner(msg.sender) {}
 
+    /*
+    * Upon create we will do a dutch auction to find the best Amos 
+    */
     function createRequest(address _famousAmos, string memory _message) external payable {
         require(msg.value > 0, "Must send some ETH");
 
@@ -62,10 +80,20 @@ contract TweetRequest is FunctionsClient, ConfirmedOwner {
         Request storage request = requests[_requestId];
         require(msg.sender == request.famousAmos, "Only the Amos can accept");
         require(!request.completed, "Request already completed");
-
+        requestToUserArgs[latestRequestId] = Request({
+            requester: msg.sender,
+            famousAmos: request.famousAmos,
+            message: request.message,
+            amount: request.amount,
+            completed: false,
+            postId: ""
+        });
         emit RequestAccepted(_requestId, msg.sender);
     }
 
+    /*
+    * Note: Multiple Amos's can accept the request but only the first one will be able to complete it and recover the amount
+    */
     function completeRequest(uint256 _requestId, string memory _postId) external {
         Request storage request = requests[_requestId];
         require(msg.sender == request.famousAmos, "Only the Amos can complete");
