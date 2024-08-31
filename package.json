@@ -31,7 +31,12 @@
     "test": "yarn foundry:test",
     "vercel": "yarn workspace @se-2/nextjs vercel",
     "vercel:yolo": "yarn workspace @se-2/nextjs vercel:yolo",
-    "verify": "yarn workspace @se-2/foundry verify"
+    "verify": "yarn workspace @se-2/foundry verify",
+    "graph-codegen": "yarn workspace @se-2/cariosg graph codegen",
+    "graph-build": "yarn workspace @se-2/cariosg graph build",
+    "graph-deploy": "yarn workspace @se-2/cariosg graph deploy --node https://api.studio.thegraph.com/deploy/ gibble-child",
+    "graph-test": "yarn workspace @se-2/cariosg graph test",
+    "graph-deploy-test": "yarn workspace @se-2/cariosg graph codegen && graph build && node updateSubgraph.ts sepolia && graph deploy --studio gibble-ethereum-test"
   },
   "devDependencies": {
     "husky": "~8.0.3",

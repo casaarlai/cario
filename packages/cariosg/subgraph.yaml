@@ -1,0 +1,32 @@
+specVersion: 1.0.0
+indexerHints:
+  prune: auto
+schema:
+  file: ./schema.graphql
+dataSources:
+  - kind: ethereum
+    name: CarioIntent
+    network: base-sepolia
+    source:
+      address: "0x634835199acedbf1c3c275f69c7e9958d3dd5e68"
+      abi: CarioIntent
+      startBlock: 14671645
+    mapping:
+      kind: ethereum/events
+      apiVersion: 0.0.7
+      language: wasm/assemblyscript
+      entities:
+        # - RequestAccepted
+        # - RequestCompleted
+        - RequestCreated
+      abis:
+        - name: CarioIntent
+          file: ./abis/CarioIntent.json
+      eventHandlers:
+        # - event: RequestAccepted(indexed uint256,indexed address)
+        #   handler: handleRequestAccepted
+        # - event: RequestCompleted(indexed uint256,string)
+        #   handler: handleRequestCompleted
+        - event: RequestCreated(indexed uint256,indexed address,string,uint256)
+          handler: handleRequestCreated
+      file: ./src/cario-intent.ts

@@ -1,0 +1,8 @@
+{
+  "base-sepolia": {
+    "CarioIntent": {
+      "address": "0x634835199acedbf1c3c275f69c7e9958d3dd5e68",
+      "startBlock": 14671645
+    }
+  }
+}

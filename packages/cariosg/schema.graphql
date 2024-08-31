@@ -1,0 +1,10 @@
+type Request @entity(immutable: true) {
+  id: String!
+  requestId: BigInt! # uint256
+  requester: Bytes! # address
+  message: String! # string
+  amount: BigInt! # uint256
+  blockNumber: BigInt!
+  blockTimestamp: BigInt!
+  transactionHash: Bytes!
+}
