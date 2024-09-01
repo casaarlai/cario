@@ -66,6 +66,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "carioToAmosCount",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint8",
+              internalType: "uint8",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "cariosToAmos",
           inputs: [
             {
@@ -151,32 +170,6 @@ const deployedContracts = {
               name: "",
               type: "address",
               internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "latestError",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes",
-              internalType: "bytes",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "latestRequestId",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
             },
           ],
           stateMutability: "view",
@@ -621,7 +614,7 @@ const deployedContracts = {
   },
   84532: {
     CarioIntent: {
-      address: "0xcedC805314365031cECF2f03F9CbfEF91AED58B1",
+      address: "0x273382a07d835a3FA82b6161F5c774f6394De405",
       abi: [
         {
           type: "constructor",
@@ -674,6 +667,25 @@ const deployedContracts = {
               name: "",
               type: "uint256",
               internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
+          name: "carioToAmosCount",
+          inputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint8",
+              internalType: "uint8",
             },
           ],
           stateMutability: "view",
@@ -765,32 +777,6 @@ const deployedContracts = {
               name: "",
               type: "address",
               internalType: "address",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "latestError",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes",
-              internalType: "bytes",
-            },
-          ],
-          stateMutability: "view",
-        },
-        {
-          type: "function",
-          name: "latestRequestId",
-          inputs: [],
-          outputs: [
-            {
-              name: "",
-              type: "bytes32",
-              internalType: "bytes32",
             },
           ],
           stateMutability: "view",

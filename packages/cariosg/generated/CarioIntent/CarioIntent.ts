@@ -332,6 +332,29 @@ export class CarioIntent extends ethereum.SmartContract {
     return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
+  carioToAmosCount(param0: BigInt): i32 {
+    let result = super.call(
+      "carioToAmosCount",
+      "carioToAmosCount(uint256):(uint8)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
+
+    return result[0].toI32();
+  }
+
+  try_carioToAmosCount(param0: BigInt): ethereum.CallResult<i32> {
+    let result = super.tryCall(
+      "carioToAmosCount",
+      "carioToAmosCount(uint256):(uint8)",
+      [ethereum.Value.fromUnsignedBigInt(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toI32());
+  }
+
   cariosToAmos(param0: BigInt, param1: BigInt): string {
     let result = super.call(
       "cariosToAmos",
@@ -408,44 +431,6 @@ export class CarioIntent extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toAddress());
-  }
-
-  latestError(): Bytes {
-    let result = super.call("latestError", "latestError():(bytes)", []);
-
-    return result[0].toBytes();
-  }
-
-  try_latestError(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall("latestError", "latestError():(bytes)", []);
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
-  }
-
-  latestRequestId(): Bytes {
-    let result = super.call(
-      "latestRequestId",
-      "latestRequestId():(bytes32)",
-      [],
-    );
-
-    return result[0].toBytes();
-  }
-
-  try_latestRequestId(): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "latestRequestId",
-      "latestRequestId():(bytes32)",
-      [],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
   }
 
   latestResponse(): Bytes {
@@ -702,49 +687,6 @@ export class CarioIntent extends ethereum.SmartContract {
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toBytes());
   }
-
-  sendRequestCBOR(
-    request: Bytes,
-    subscriptionId: BigInt,
-    gasLimit: BigInt,
-    donID: Bytes,
-  ): Bytes {
-    let result = super.call(
-      "sendRequestCBOR",
-      "sendRequestCBOR(bytes,uint64,uint32,bytes32):(bytes32)",
-      [
-        ethereum.Value.fromBytes(request),
-        ethereum.Value.fromUnsignedBigInt(subscriptionId),
-        ethereum.Value.fromUnsignedBigInt(gasLimit),
-        ethereum.Value.fromFixedBytes(donID),
-      ],
-    );
-
-    return result[0].toBytes();
-  }
-
-  try_sendRequestCBOR(
-    request: Bytes,
-    subscriptionId: BigInt,
-    gasLimit: BigInt,
-    donID: Bytes,
-  ): ethereum.CallResult<Bytes> {
-    let result = super.tryCall(
-      "sendRequestCBOR",
-      "sendRequestCBOR(bytes,uint64,uint32,bytes32):(bytes32)",
-      [
-        ethereum.Value.fromBytes(request),
-        ethereum.Value.fromUnsignedBigInt(subscriptionId),
-        ethereum.Value.fromUnsignedBigInt(gasLimit),
-        ethereum.Value.fromFixedBytes(donID),
-      ],
-    );
-    if (result.reverted) {
-      return new ethereum.CallResult();
-    }
-    let value = result.value;
-    return ethereum.CallResult.fromValue(value[0].toBytes());
-  }
 }
 
 export class ConstructorCall extends ethereum.Call {
@@ -967,52 +909,6 @@ export class SendRequestCall__Outputs {
   _call: SendRequestCall;
 
   constructor(call: SendRequestCall) {
-    this._call = call;
-  }
-
-  get requestId(): Bytes {
-    return this._call.outputValues[0].value.toBytes();
-  }
-}
-
-export class SendRequestCBORCall extends ethereum.Call {
-  get inputs(): SendRequestCBORCall__Inputs {
-    return new SendRequestCBORCall__Inputs(this);
-  }
-
-  get outputs(): SendRequestCBORCall__Outputs {
-    return new SendRequestCBORCall__Outputs(this);
-  }
-}
-
-export class SendRequestCBORCall__Inputs {
-  _call: SendRequestCBORCall;
-
-  constructor(call: SendRequestCBORCall) {
-    this._call = call;
-  }
-
-  get request(): Bytes {
-    return this._call.inputValues[0].value.toBytes();
-  }
-
-  get subscriptionId(): BigInt {
-    return this._call.inputValues[1].value.toBigInt();
-  }
-
-  get gasLimit(): BigInt {
-    return this._call.inputValues[2].value.toBigInt();
-  }
-
-  get donID(): Bytes {
-    return this._call.inputValues[3].value.toBytes();
-  }
-}
-
-export class SendRequestCBORCall__Outputs {
-  _call: SendRequestCBORCall;
-
-  constructor(call: SendRequestCBORCall) {
     this._call = call;
   }
 

@@ -4,6 +4,9 @@ import {
 import {
   Request
 } from "../generated/schema"
+import { CarioIntent } from "../generated/CarioIntent/CarioIntent"
+import { ethereum } from "@graphprotocol/graph-ts"
+import { BigInt } from "@graphprotocol/graph-ts"
 
 
 // export function handleRequestAccepted(event: RequestAcceptedEvent): void {
@@ -40,7 +43,26 @@ export function handleRequestCreated(event: RequestCreatedEvent): void {
   entity.requester = event.params.requester
   entity.message = event.params.message
   entity.amount = event.params.amount
+  // Fetch cariosToAmos data using a contract call
+  let contract = CarioIntent.bind(event.address)
+  let countResult = contract.try_carioToAmosCount(event.params.requestId)
+  if (!countResult.reverted) {
+    let count = countResult.value
+    let cariosToAmos: string[] = []
 
+    // Loop through the count and fetch each Amos
+    for (let i = 0; i < count; i++) {
+      let cariosToAmosResult = contract.try_cariosToAmos(event.params.requestId, BigInt.fromI32(i))
+      if (!cariosToAmosResult.reverted) {
+        cariosToAmos.push(cariosToAmosResult.value)
+      }
+    }
+
+    // Store the concatenated results in the entity
+    entity.cariosToAmos = cariosToAmos.join(',')
+  } else {
+    entity.cariosToAmos = ""
+  }
   entity.blockNumber = event.block.number
   entity.blockTimestamp = event.block.timestamp
   entity.transactionHash = event.transaction.hash

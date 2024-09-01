@@ -1,6 +1,6 @@
 import express, { Express, Request, Response } from 'express';
 import cors from 'cors'; // Import the cors middleware
-import makeRequest from './request';
+import { makeRequest, createCarioIntentRequest } from './request';
 
 const app: Express = express();
 const port = 3001;
@@ -19,6 +19,21 @@ app.post('/chainlink-functions/youtube', async (req: Request, res: Response) => 
   }
   try {
     const result = await makeRequest(videoOrChannelId, ownerWalletAddress, type);
+    return res.json(result);
+  } catch (error) {
+    console.log(error)
+    res.status(500).json({ message: 'Internal server error' });
+  }
+});
+
+
+app.post('/chainlink-functions/youtube', async (req: Request, res: Response) => {
+  const { videoOrChannelIds, msg } = req.body;
+  if (!videoOrChannelIds || !msg) {
+    return res.status(400).json({ message: 'videoOrChannelId and msg are required' });
+  }
+  try {
+    const result = await createCarioIntentRequest(req.body);
     return res.json(result);
   } catch (error) {
     console.log(error)

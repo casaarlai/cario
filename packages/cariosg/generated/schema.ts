@@ -102,6 +102,19 @@ export class Request extends Entity {
     this.set("amount", Value.fromBigInt(value));
   }
 
+  get cariosToAmos(): string {
+    let value = this.get("cariosToAmos");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set cariosToAmos(value: string) {
+    this.set("cariosToAmos", Value.fromString(value));
+  }
+
   get blockNumber(): BigInt {
     let value = this.get("blockNumber");
     if (!value || value.kind == ValueKind.NULL) {

@@ -7465,30 +7465,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"example@workspace:packages/example":
-  version: 0.0.0-use.local
-  resolution: "example@workspace:packages/example"
-  dependencies:
-    "@0xpolygonid/js-sdk": 1.4.1
-    "@0xpolygonid/mongo-storage": "github:0xPolygonID/nodejs-storage-example"
-    "@chainlink/env-enc": ^1.0.5
-    "@chainlink/functions-toolkit": ^0.2.6
-    "@types/cors": ^2.8.17
-    "@types/express": ^4.17.21
-    concurrently: ^8.0.1
-    cors: ^2.8.5
-    dotenv: ^16.3.1
-    eslint-config-prettier: ^8.8.0
-    eslint-plugin-prettier: ^4.2.1
-    ethers: 5
-    express: ^4.18.2
-    nodemon: ^2.0.22
-    prettier: ^2.7.1
-    ts-node: ^10.9.1
-    typescript: ^4.9.5
-  languageName: unknown
-  linkType: soft
-
 "execa@npm:3.2.0":
   version: 3.2.0
   resolution: "execa@npm:3.2.0"
@@ -13105,6 +13081,30 @@ __metadata:
   checksum: 74fc07ebb58566b87b078ec63e5a3e41ecd987e4272ba67b7467e86c6ad51bc6b0b0154133b6d8b08a2ddda360464f71382f7ef864700f34844a76c8027817a8
   languageName: node
   linkType: hard
+
+"sepolia-test@workspace:packages/sepolia-test":
+  version: 0.0.0-use.local
+  resolution: "sepolia-test@workspace:packages/sepolia-test"
+  dependencies:
+    "@0xpolygonid/js-sdk": 1.4.1
+    "@0xpolygonid/mongo-storage": "github:0xPolygonID/nodejs-storage-example"
+    "@chainlink/env-enc": ^1.0.5
+    "@chainlink/functions-toolkit": ^0.2.6
+    "@types/cors": ^2.8.17
+    "@types/express": ^4.17.21
+    concurrently: ^8.0.1
+    cors: ^2.8.5
+    dotenv: ^16.3.1
+    eslint-config-prettier: ^8.8.0
+    eslint-plugin-prettier: ^4.2.1
+    ethers: 5
+    express: ^4.18.2
+    nodemon: ^2.0.22
+    prettier: ^2.7.1
+    ts-node: ^10.9.1
+    typescript: ^4.9.5
+  languageName: unknown
+  linkType: soft
 
 "serve-static@npm:1.15.0":
   version: 1.15.0

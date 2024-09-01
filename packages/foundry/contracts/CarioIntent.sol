@@ -38,11 +38,10 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
   mapping(uint256 => Request) public requests;
   mapping(address => uint256) public carioRequests; //mapping to store the requests for a given Cario user
   mapping(uint256 => string[]) public cariosToAmos; //mapping to store the Amos address for a given Cario user
+  mapping(uint256 => uint8) public carioToAmosCount; //mapping to store the number of Amos for a given Cario user
   uint256 public nextRequestId;
 
-  bytes32 public latestRequestId;
   bytes public latestResponse;
-  bytes public latestError;
 
   /*
     * Events to be emitted when a request is created, accepted or completed
@@ -94,6 +93,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
       postId: ""
     });
     cariosToAmos[requestId] = _famousAmos;
+    carioToAmosCount[requestId] = uint8(_famousAmos.length);
 
     for (uint256 i = 0; i < _famousAmos.length; i++) {
       amosIdExists[requestId][_famousAmos[i]] = true;

@@ -4,12 +4,38 @@ import * as envvar from "@chainlink/env-enc";
 envvar.config();
 
 import functionsConsumerAbi from './abi/functionsClient.json';
+import carioIntentAbiObject from './abi/CarioIntent.json';
 import { youtubeFunctionString } from './functions/youtube';
+import axios from 'axios';
 
-const consumerAddress = "0xcedc805314365031cecf2f03f9cbfef91aed58b1";
+interface CarioIntentRequest {
+  videoOrChannelIds: string[];
+  msg: string;
+}
+
+const consumerAddress = "0x273382a07d835a3FA82b6161F5c774f6394De405";
 const subscriptionId = 164; // REPLACE this with your subscription ID
 const explorerUrl= "https://sepolia.basescan.org";
 // hardcoded for Polygon Mumbai
+
+// Initialize ethers signer and provider to interact with the contracts onchain
+const privateKey: any = process.env.PRIVATE_KEY;
+if (!privateKey) {
+  console.log("private key not provided - check your environment variables")
+}
+
+const rpcUrl = process.env.RPC_URL;
+console.log("rpcUrl", rpcUrl)
+if (!rpcUrl) {
+  console.log('rpcUrl not provided  - check your environment variables')
+}
+
+const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
+
+const wallet = new ethers.Wallet(privateKey);
+const signer = wallet.connect(provider); // create ethers signer for signing transactions
+  
+    
 const makeRequest= async (videoOrChannelId: string, ownerWalletAddress: string, type: string): Promise<any> => {
   return new Promise(async (resolve, rej) => {
     // hardcoded for Polygon Mumbai
@@ -29,23 +55,7 @@ const makeRequest= async (videoOrChannelId: string, ownerWalletAddress: string, 
     const expirationTimeMinutes = 15; // expiration time in minutes of the secrets
     const gasLimit = 300000;
   
-    // Initialize ethers signer and provider to interact with the contracts onchain
-    const privateKey: any = process.env.PRIVATE_KEY;
-    if (!privateKey) {
-      rej("private key not provided - check your environment variables")
-    }
-  
-    const rpcUrl = process.env.RPC_URL;
-    console.log("rpcUrl", rpcUrl)
-    if (!rpcUrl) {
-      rej('rpcUrl not provided  - check your environment variables')
-    }
-  
-    const provider = new ethers.providers.JsonRpcProvider(rpcUrl);
-  
-    const wallet = new ethers.Wallet(privateKey);
-    const signer = wallet.connect(provider); // create ethers signer for signing transactions
-  
+
     ///////// START SIMULATION ////////////
   
     console.log("Start simulation...", secrets);
@@ -250,4 +260,25 @@ const makeRequest= async (videoOrChannelId: string, ownerWalletAddress: string, 
   })
 };
 
-export default makeRequest;
+const createCarioIntentRequest = async (request: CarioIntentRequest): Promise<any> => {
+  try {
+    const carioIntentContract = new ethers.Contract(consumerAddress, carioIntentAbiObject, signer);
+    const tx = await carioIntentContract.createRequest(
+      request.videoOrChannelIds, // Pass the array of strings directly
+      request.msg, // Pass the message string directly
+      { value: ethers.utils.parseEther("0.00001") } // Sending 0.01 ETH
+    );
+
+    console.log(`\n✅ Cario Intent contract call sent! Transaction hash: ${tx.hash}`);
+    await tx.wait();
+    console.log(`\n✅ Cario Intent contract call confirmed!`);
+    return tx;
+  } catch (error) {
+    console.error(`\n❌ Error sending Cario Intent request: `, error);
+    throw error;
+  }
+};
+
+createCarioIntentRequest({ videoOrChannelIds: ["123", "456"], msg: "hello" });
+
+export { makeRequest, createCarioIntentRequest };

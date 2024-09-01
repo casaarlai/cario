@@ -4,6 +4,7 @@ type Request @entity(immutable: true) {
   requester: Bytes! # address
   message: String! # string
   amount: BigInt! # uint256
+  cariosToAmos: String! # Store as a comma-separated string
   blockNumber: BigInt!
   blockTimestamp: BigInt!
   transactionHash: Bytes!
