@@ -165,25 +165,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
       _sendRequest(req.encodeCBOR(), subscriptionId, gasLimit, donID);
     return s_lastRequestId;
   }
-  /**
-   * @notice Send a pre-encoded CBOR request
-   * @param request CBOR-encoded request data
-   * @param subscriptionId Billing ID
-   * @param gasLimit The maximum amount of gas the request can consume
-   * @param donID ID of the job to be invoked
-   * @return requestId The ID of the sent request
-   */
-
-  function sendRequestCBOR(
-    bytes memory request,
-    uint64 subscriptionId,
-    uint32 gasLimit,
-    bytes32 donID
-  ) external onlyOwner returns (bytes32 requestId) {
-    s_lastRequestId = _sendRequest(request, subscriptionId, gasLimit, donID);
-    return s_lastRequestId;
-  }
-
+ 
   /**
    * @notice Store latest result/error
    * @param requestId The request ID, returned by sendRequest()
