@@ -8,6 +8,7 @@ export const GET_REQUESTS = gql`
       requester
       message
       amount
+      cariosToAmos
       blockNumber
       blockTimestamp
       transactionHash
