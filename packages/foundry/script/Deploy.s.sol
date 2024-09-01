@@ -15,11 +15,11 @@ contract DeployScript is ScaffoldETHDeploy {
       );
     }
     vm.startBroadcast(deployerPrivateKey);
-
-    CarioIntent CarioIntent = new CarioIntent(vm.addr(deployerPrivateKey));
+    address ChainlinkRouter = 0xf9B8fc078197181C841c296C876945aaa425B278;
+    CarioIntent carioIntent = new CarioIntent(ChainlinkRouter);
     console.logString(
       string.concat(
-        "CarioIntent deployed at: ", vm.toString(address(CarioIntent))
+        "CarioIntent deployed at: ", vm.toString(address(carioIntent))
       )
     );
 

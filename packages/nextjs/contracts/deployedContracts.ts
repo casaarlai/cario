@@ -398,40 +398,6 @@ const deployedContracts = {
         },
         {
           type: "function",
-          name: "sendRequestCBOR",
-          inputs: [
-            {
-              name: "request",
-              type: "bytes",
-              internalType: "bytes",
-            },
-            {
-              name: "subscriptionId",
-              type: "uint64",
-              internalType: "uint64",
-            },
-            {
-              name: "gasLimit",
-              type: "uint32",
-              internalType: "uint32",
-            },
-            {
-              name: "donID",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [
-            {
-              name: "requestId",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
           name: "transferOwnership",
           inputs: [
             {
@@ -655,7 +621,7 @@ const deployedContracts = {
   },
   84532: {
     CarioIntent: {
-      address: "0x634835199Acedbf1c3C275F69c7e9958d3Dd5e68",
+      address: "0xcedC805314365031cECF2f03F9CbfEF91AED58B1",
       abi: [
         {
           type: "constructor",
@@ -1018,40 +984,6 @@ const deployedContracts = {
               name: "bytesArgs",
               type: "bytes[]",
               internalType: "bytes[]",
-            },
-            {
-              name: "subscriptionId",
-              type: "uint64",
-              internalType: "uint64",
-            },
-            {
-              name: "gasLimit",
-              type: "uint32",
-              internalType: "uint32",
-            },
-            {
-              name: "donID",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          outputs: [
-            {
-              name: "requestId",
-              type: "bytes32",
-              internalType: "bytes32",
-            },
-          ],
-          stateMutability: "nonpayable",
-        },
-        {
-          type: "function",
-          name: "sendRequestCBOR",
-          inputs: [
-            {
-              name: "request",
-              type: "bytes",
-              internalType: "bytes",
             },
             {
               name: "subscriptionId",
