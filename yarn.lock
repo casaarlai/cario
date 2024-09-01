@@ -901,6 +901,16 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@ethsign/sign-protocol-evm@npm:^1.1.1":
+  version: 1.1.1
+  resolution: "@ethsign/sign-protocol-evm@npm:1.1.1"
+  dependencies:
+    "@openzeppelin/contracts": 5.0.1
+    "@openzeppelin/contracts-upgradeable": 5.0.1
+  checksum: 430cf93fbd84630e7ba3e0a625f55184ee0f7335bbf24a83031a576890bd65ab322cfeb1723de6992c864e8fe5a60011670d7a97ff79960b329f4bf3b5a6a4a2
+  languageName: node
+  linkType: hard
+
 "@fastify/busboy@npm:^2.0.0":
   version: 2.1.1
   resolution: "@fastify/busboy@npm:2.1.1"
@@ -1761,6 +1771,22 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@openzeppelin/contracts-upgradeable@npm:5.0.1":
+  version: 5.0.1
+  resolution: "@openzeppelin/contracts-upgradeable@npm:5.0.1"
+  peerDependencies:
+    "@openzeppelin/contracts": 5.0.1
+  checksum: a3a09ce10bc4647ab440aa56098b94e8a8bb763a9a399b834a4b7804be03d36331097b8e8f323791c0a0802a84d900597af1e23ac25aaeebeab0a2ae32763fc8
+  languageName: node
+  linkType: hard
+
+"@openzeppelin/contracts@npm:5.0.1":
+  version: 5.0.1
+  resolution: "@openzeppelin/contracts@npm:5.0.1"
+  checksum: bc056d358a672f0d43ff5a372b5b65c6d3e9e49478f70bc00a5ad06ce9107400e8e8b8d94cf85dffca00b303ee8d15ac8def55d320ea54386dc81d6b98ddfabc
+  languageName: node
+  linkType: hard
+
 "@parcel/watcher-android-arm64@npm:2.4.1":
   version: 2.4.1
   resolution: "@parcel/watcher-android-arm64@npm:2.4.1"
@@ -2165,6 +2191,7 @@ __metadata:
   version: 0.0.0-use.local
   resolution: "@se-2/foundry@workspace:packages/foundry"
   dependencies:
+    "@ethsign/sign-protocol-evm": ^1.1.1
     "@types/prettier": 2
     "@types/qrcode": 1
     dotenv: ~16.3.1

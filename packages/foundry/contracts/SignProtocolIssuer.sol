@@ -1,61 +1,55 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
+import { Ownable } from "@openzeppelin/contracts/access/Ownable.sol";
+import { ISP } from "@ethsign/sign-protocol-evm/src/interfaces/ISP.sol";
+import { Attestation } from "@ethsign/sign-protocol-evm/src/models/Attestation.sol";
+import { DataLocation } from "@ethsign/sign-protocol-evm/src/models/DataLocation.sol";
 
-enum DataLocation {
-    IPFS,
-    ARWEAVE,
-    ON_CHAIN
-}
+contract SignProtocolIssuer is Ownable {
+    ISP public spInstance;
+    uint64 public schemaId;
+    mapping(address partyA => address partyB) public metIRLMapping;
 
-struct Attestation {
-    uint64 schemaId;
-    uint64 linkedAttestationId;
-    uint64 attestTimestamp;
-    uint64 revokeTimestamp;
-    address attester;
-    uint64 validUntil;
-    DataLocation dataLocation;
-    bool revoked;
-    bytes[] recipients;
-    bytes data;
-}
+    error ConfirmationAddressMismatch();
 
-interface IExternalContract {
-    function attest(Attestation calldata attestation) external;
-}
+    event Endorsed(string videoId, address amos, uint64 attestationId);
 
-contract SignProtocolIssuer {
-    IExternalContract public externalContract;
+    constructor() Ownable(_msgSender()) { }
 
-    constructor(address _externalContractAddress) {
-        externalContract = IExternalContract(_externalContractAddress);
+    function setSPInstance(address instance) external onlyOwner {
+        spInstance = ISP(instance);
+    }
+
+    function setSchemaID(uint64 schemaId_) external onlyOwner {
+        schemaId = schemaId_;
     }
 
     function createAndSendAttestation(
-        uint64 schemaId,
-        uint64 linkedAttestationId,
-        uint64 attestTimestamp,
-        uint64 revokeTimestamp,
-        address attester,
-        uint64 validUntil,
-        DataLocation dataLocation,
-        bool revoked,
-        bytes[] calldata recipients,
-        bytes calldata data
-    ) external {
+        string calldata videoId,
+        address amos,
+        uint256 fees,
+        bytes[] calldata recipients
+    ) public {
+        //TODO: Later add a required that this can be only called by CarioIntent contract.
+        bytes memory attestationData = abi.encode(
+            videoId,
+            amos,
+            fees // Replace with actual fees if needed
+        );
         Attestation memory attestation = Attestation({
-            schemaId: schemaId,
-            linkedAttestationId: linkedAttestationId,
-            attestTimestamp: attestTimestamp,
-            revokeTimestamp: revokeTimestamp,
-            attester: attester,
-            validUntil: validUntil,
-            dataLocation: dataLocation,
-            revoked: revoked,
+           schemaId: schemaId,
+            linkedAttestationId: 0,
+            attestTimestamp: 0,
+            revokeTimestamp: 0,
+            attester: address(this), // cario is the attester
+            validUntil: 0,
+            dataLocation: DataLocation.ONCHAIN,
+            revoked: false,
             recipients: recipients,
-            data: data
+            data: attestationData // SignScan assumes this is from `abi.encode(...)`
         });
 
-        externalContract.attest(attestation);
+        uint64 attestationId = spInstance.attest(attestation, "D884A2cb2", "0x", "0x");
+        emit Endorsed(videoId, amos, attestationId);
     }
 }
