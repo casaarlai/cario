@@ -64,6 +64,8 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
   address public issuerSimpleAddress;
   mapping(bytes32 => Request) public requestToUserArgs;
   mapping(uint256 => mapping(string => bool)) private amosIdExists;
+  mapping(address => string) private publicKeyToAmosId;
+  mapping(bytes32 => uint256) public clrequestToRequests;// mapping of chainlink requests
   error UnexpectedRequestOr(bytes response);
 
   event Response(
@@ -105,26 +107,18 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
   /*
     * Note: The Amos id is the same as the channel id of the YouTuber
     */
-  function acceptRequest(uint256 _requestId, string memory _amosId) external {
+  function acceptRequest(uint256 _requestId, string memory _amosId) external returns (bytes32 hashRequest) {
     Request storage request = requests[_requestId];
-    require(request.status == Status.Created, "Request not in Created status");
+    require(request.status != Status.Completed, "Request already completed!");
     request.status = Status.Accepted;
     // Check if _channelId is already in cariosToAmos[_requestId]
     require(amosIdExists[_requestId][_amosId], "Channel ID not requested!");
+    publicKeyToAmosId[msg.sender] = _amosId;
 
     emit RequestAccepted(_requestId, msg.sender);
+    //return a keccak of the _requestId, amount, amosid, message and msg.sender
+    return keccak256(abi.encodePacked(_requestId, request.amount, _amosId, request.message, msg.sender));
   }
-
-  // /*
-  //   * Note: Multiple Amos's can accept the request but only the first one will be able to complete it and recover the amount
-  //   */
-  // function completeRequest(uint256 _requestId, string memory _postId) external {
-  //   Request storage request = requests[_requestId];
-  //   require(msg.sender == request.famousAmos, "Only the Amos can complete");
-  //   require(!request.completed, "Request already completed");
-
-  //   request.postId = _postId;
-  // }
 
   // function cancelRequest(uint256 _requestId) external {
   //   Request storage request = requests[_requestId];
@@ -139,19 +133,27 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
   // }
 
   /*
-    * Chainlink verification section
-    */
+    // Start Verification
+    //1. Call the Chainlink function to verify the post ID
+    //2. We do this by checking that the postId has the hash in description
+    //3. If the verification is successful, we will transfer the amount to the Amos
+  */
   function sendRequest(
     string memory source,
     bytes memory encryptedSecretsUrls,
     uint8 donHostedSecretsSlotID,
     uint64 donHostedSecretsVersion,
+    uint256 _requestId,
     string[] memory args,
     bytes[] memory bytesArgs,
     uint64 subscriptionId,
     uint32 gasLimit,
     bytes32 donID
   ) external returns (bytes32 requestId) {
+    Request storage request = requests[_requestId];
+    require(request.status != Status.Completed, "Request already completed!");
+    bytes32 hashToCheck = keccak256(abi.encodePacked(_requestId, request.amount, publicKeyToAmosId[msg.sender], request.message, msg.sender));
+    args[0] = Strings.toHexString(uint256(hashToCheck));
     FunctionsRequest.Request memory req;
     req.initializeRequestForInlineJavaScript(source);
     if (encryptedSecretsUrls.length > 0) {
@@ -163,6 +165,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     if (bytesArgs.length > 0) req.setBytesArgs(bytesArgs);
     s_lastRequestId =
       _sendRequest(req.encodeCBOR(), subscriptionId, gasLimit, donID);
+    clrequestToRequests[s_lastRequestId] = _requestId;
     return s_lastRequestId;
   }
  
@@ -179,10 +182,13 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     bytes memory err
   ) internal override {
     (uint256 result) = abi.decode(response, (uint256));
-
-    Request storage request = requests[result];
+    if (result <= 0) {
+        revert UnexpectedRequestOr(response);
+    }
+    Request storage request = requests[clrequestToRequests[requestId]];
     request.status = Status.Completed;
-    // emit RequestCompleted(reqId, request.postId);
+    emit RequestCompleted(clrequestToRequests[requestId], request.postId);
+    // Sign and issue the credentials
     s_lastResponse = response;
     s_lastError = err;
     emit Response(requestId, s_lastResponse, s_lastError, true);
