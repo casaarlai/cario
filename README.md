@@ -10,9 +10,10 @@
 
 
 1. https://testnet-scan.sign.global/attestation/onchain_evm_84532_0x41b -> Eth Sign Test Done
-2. Chainlink Function call works -> Tested
+2. Chainlink Function call works -> Tested -> https://functions.chain.link/base-sepolia/164#/side-drawer/base-sepolia/164/0xccaee949129a04eae34fb9100c519bd988b78f908bb878682b11fb8e9ee9953f
 3. Integration
 4. Add ZK/Fenix for messages
+
 
 🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
 

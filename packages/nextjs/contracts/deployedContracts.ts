@@ -42,7 +42,13 @@ const deployedContracts = {
               internalType: "string",
             },
           ],
-          outputs: [],
+          outputs: [
+            {
+              name: "hashRequest",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
           stateMutability: "nonpayable",
         },
         {
@@ -109,6 +115,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "clrequestToRequests",
+          inputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "createRequest",
           inputs: [
             {
@@ -122,7 +147,13 @@ const deployedContracts = {
               internalType: "string",
             },
           ],
-          outputs: [],
+          outputs: [
+            {
+              name: "requestId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
           stateMutability: "payable",
         },
         {
@@ -353,6 +384,11 @@ const deployedContracts = {
               name: "donHostedSecretsVersion",
               type: "uint64",
               internalType: "uint64",
+            },
+            {
+              name: "_requestId",
+              type: "uint256",
+              internalType: "uint256",
             },
             {
               name: "args",
@@ -614,7 +650,7 @@ const deployedContracts = {
   },
   84532: {
     CarioIntent: {
-      address: "0x273382a07d835a3FA82b6161F5c774f6394De405",
+      address: "0x8A2CB13dde3Acdc99207855cFF39530790e98B03",
       abi: [
         {
           type: "constructor",
@@ -649,7 +685,13 @@ const deployedContracts = {
               internalType: "string",
             },
           ],
-          outputs: [],
+          outputs: [
+            {
+              name: "hashRequest",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
           stateMutability: "nonpayable",
         },
         {
@@ -716,6 +758,25 @@ const deployedContracts = {
         },
         {
           type: "function",
+          name: "clrequestToRequests",
+          inputs: [
+            {
+              name: "",
+              type: "bytes32",
+              internalType: "bytes32",
+            },
+          ],
+          outputs: [
+            {
+              name: "",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
+          stateMutability: "view",
+        },
+        {
+          type: "function",
           name: "createRequest",
           inputs: [
             {
@@ -729,7 +790,13 @@ const deployedContracts = {
               internalType: "string",
             },
           ],
-          outputs: [],
+          outputs: [
+            {
+              name: "requestId",
+              type: "uint256",
+              internalType: "uint256",
+            },
+          ],
           stateMutability: "payable",
         },
         {
@@ -960,6 +1027,11 @@ const deployedContracts = {
               name: "donHostedSecretsVersion",
               type: "uint64",
               internalType: "uint64",
+            },
+            {
+              name: "_requestId",
+              type: "uint256",
+              internalType: "uint256",
             },
             {
               name: "args",

@@ -1,9 +1,8 @@
 export const youtubeFunctionString = `
-
 // Begin Function
-const videoOrChannelId = args[0];
-const ownerWalletAddress = args[1];
-const type = args[2]; // "video" | "channel"
+const hash = args[0];
+const channelId = args[1];
+const videoId = args[2];
 
 if (!secrets.apiKey) {
   throw Error(
@@ -11,29 +10,16 @@ if (!secrets.apiKey) {
   );
 }
 
-let youtubeRequest;
+let youtubeRequest = Functions.makeHttpRequest({
+  url: "https://youtube.googleapis.com/youtube/v3/videos",
+  method: "GET",
+  params: {
+    part: "snippet",
+    id: videoId,
+    key: secrets.apiKey
+  },
+});
 
-if (type === "channel") {
-  youtubeRequest = Functions.makeHttpRequest({
-    url: "https://youtube.googleapis.com/youtube/v3/channels",
-    method: "GET",
-    params: {
-      part: "snippet",
-      id: videoOrChannelId,
-      key: secrets.apiKey
-    },
-  });
-} else {
-  youtubeRequest = Functions.makeHttpRequest({
-    url: "https://youtube.googleapis.com/youtube/v3/videos",
-    method: "GET",
-    params: {
-      part: "snippet",
-      id: videoOrChannelId,
-      key: secrets.apiKey
-    },
-  });
-}
 
 const youtubeResponse = await youtubeRequest;
 
@@ -42,13 +28,19 @@ if (youtubeResponse.error) {
 }
 
 if (youtubeResponse.data && youtubeResponse.data.items && youtubeResponse.data.items[0]) {
-  const description = youtubeResponse.data.items[0].snippet.description.toLowerCase();
-  const walletIndex = description.indexOf(ownerWalletAddress.toLowerCase());
+  const description = youtubeResponse.data.items[0].snippet.description;
+  const channelIdFromVid = youtubeResponse.data.items[0].snippet.channelId;
+  const walletIndex = description.indexOf(hash);
+  const channelIndex = channelIdFromVid.indexOf(channelId);
   const resultInt = walletIndex !== -1 ? 1 : 0;
-  return Functions.encodeUint256(resultInt);
+  const channelResult = channelIndex !== -1 ? 1 : 0;
+  return Functions.encodeUint256(resultInt*channelResult);
 } else {
-  throw new Error("Youtube video or channel not found");
+  throw new Error("Youtube video  not found");
 }
+
+
+
 // End Function
 
 `;

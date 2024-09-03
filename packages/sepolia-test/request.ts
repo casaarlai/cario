@@ -7,13 +7,12 @@ import functionsConsumerAbi from './abi/functionsClient.json';
 import carioIntentAbiObject from './abi/CarioIntent.json';
 import { youtubeFunctionString } from './functions/youtube';
 import axios from 'axios';
-
 interface CarioIntentRequest {
   videoOrChannelIds: string[];
   msg: string;
 }
 
-const consumerAddress = "0x273382a07d835a3FA82b6161F5c774f6394De405";
+const consumerAddress = "0x8A2CB13dde3Acdc99207855cFF39530790e98B03";
 const subscriptionId = 164; // REPLACE this with your subscription ID
 const explorerUrl= "https://sepolia.basescan.org";
 // hardcoded for Polygon Mumbai
@@ -36,7 +35,7 @@ const wallet = new ethers.Wallet(privateKey);
 const signer = wallet.connect(provider); // create ethers signer for signing transactions
   
     
-const makeRequest= async (videoOrChannelId: string, ownerWalletAddress: string, type: string): Promise<any> => {
+const makeRequest= async (videoOrChannelId: string, ownerWalletAddress: string): Promise<any> => {
   return new Promise(async (resolve, rej) => {
     // hardcoded for Polygon Mumbai
     const routerAddress = "0xf9B8fc078197181C841c296C876945aaa425B278";
@@ -48,8 +47,23 @@ const makeRequest= async (videoOrChannelId: string, ownerWalletAddress: string, 
     ];
     // Initialize functions settings
     const source = youtubeFunctionString;
-  
-    const args = [videoOrChannelId, ownerWalletAddress, type];
+    const abiCoder = new ethers.utils.AbiCoder();
+    const keccak256 = ethers.utils.keccak256;
+
+    const _requestId = 0; // Replace with actual requestId
+    const amount = ethers.utils.parseEther("0.00001"); // Replace with actual amount
+    const publicKeyToAmosId = "UC4nRmZan1X84wnWiW297rTg"; // Replace with actual publicKeyToAmosId
+    const message = "hello"; // Replace with actual message
+    const sender = "0x29d5ab1282ee60d9bE352D625a65B4f0939a46a1"; // Replace with actual sender address
+
+    const encodedData = abiCoder.encode(
+      ["uint256", "uint256", "string", "string", "address"],
+      [_requestId, amount, publicKeyToAmosId, message, sender]
+    );
+
+    const hash = keccak256(encodedData);
+    console.log("Keccak256 hash:", hash);
+      const args = ["0xb29209b950a51a3B73c8c078A1876FF26e9d986c","UC4nRmZan1X84wnWiW297rTg",videoOrChannelId];
     const secrets: any = { apiKey: process.env.YOUTUBE_API_KEY, rpcUrl: process.env.RPC_URL };
     const slotIdNumber = 0; // slot ID where to upload the secrets
     const expirationTimeMinutes = 15; // expiration time in minutes of the secrets
@@ -154,7 +168,7 @@ const makeRequest= async (videoOrChannelId: string, ownerWalletAddress: string, 
       console.log("donHostedSecretsVersion", donHostedSecretsVersion)
       const functionsConsumer = new ethers.Contract(
       consumerAddress,
-      functionsConsumerAbi,
+      carioIntentAbiObject,
       signer
     );
     // Actual transaction call
@@ -164,8 +178,8 @@ const makeRequest= async (videoOrChannelId: string, ownerWalletAddress: string, 
       "0x", // user hosted secrets - encryptedSecretsUrls - empty in this example
       slotIdNumber, // slot ID of the encrypted secrets
       donHostedSecretsVersion, // version of the encrypted secrets
-    //   24308703216449665528637752374872361740983978940004854943937687158795473409n,
-      args,
+      0, //request ID
+      args, //args 1 should have the video id
       [], // bytesArgs - arguments can be encoded off-chain to bytes.
       subscriptionId,
       gasLimit,
@@ -279,6 +293,25 @@ const createCarioIntentRequest = async (request: CarioIntentRequest): Promise<an
   }
 };
 
-createCarioIntentRequest({ videoOrChannelIds: ["123", "456"], msg: "hello" });
+const acceptCarioIntentRequest = async (): Promise<any> => {
+  try {
+    const carioIntentContract = new ethers.Contract(consumerAddress, carioIntentAbiObject, signer);
+    const requestId = await carioIntentContract.nextRequestId();
+    console.log("requestId", requestId.toString());
+    const tx = await carioIntentContract.acceptRequest(
+      ethers.BigNumber.from(requestId).sub(1),
+      "UC4nRmZan1X84wnWiW297rTg", // Pass the message string directly
+    );
 
-export { makeRequest, createCarioIntentRequest };
+    // console.log(`\n✅ Cario Intent contract call sent! Transaction hash: ${tx.hash}`);
+    // await tx.wait();
+    // console.log(`\n✅ Cario Intent contract call confirmed!`);
+    // return tx;
+  } catch (error) {
+    console.error(`\n❌ Error sending Cario Intent request: `, error);
+    throw error;
+  }
+};
+
+createCarioIntentRequest({ videoOrChannelIds: ["UC4nRmZan1X84wnWiW297rTg", "456"], msg: "hello" });
+export { makeRequest, createCarioIntentRequest,acceptCarioIntentRequest };

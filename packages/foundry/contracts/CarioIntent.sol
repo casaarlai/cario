@@ -83,7 +83,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
   function createRequest(
     string[] memory _famousAmos,
     string memory _message
-  ) external payable {
+  ) external payable returns (uint256 requestId){
     require(msg.value > 0, "Must send some ETH");
 
     uint256 requestId = nextRequestId++;
@@ -102,6 +102,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     }
 
     emit RequestCreated(requestId, msg.sender, _message, msg.value);
+    return requestId;
   }
 
   /*
@@ -120,18 +121,6 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     return keccak256(abi.encodePacked(_requestId, request.amount, _amosId, request.message, msg.sender));
   }
 
-  // function cancelRequest(uint256 _requestId) external {
-  //   Request storage request = requests[_requestId];
-  //   require(msg.sender == request.requester, "Only the requester can cancel");
-  //   require(!request.completed, "Request already completed");
-
-  //   // Refund the amount to the requester
-  //   payable(request.requester).transfer(request.amount);
-
-  //   // Mark the request as completed
-  //   request.completed = true;
-  // }
-
   /*
     // Start Verification
     //1. Call the Chainlink function to verify the post ID
@@ -144,7 +133,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     uint8 donHostedSecretsSlotID,
     uint64 donHostedSecretsVersion,
     uint256 _requestId,
-    string[] memory args,
+    string[] memory args, //hash and the videoid
     bytes[] memory bytesArgs,
     uint64 subscriptionId,
     uint32 gasLimit,
@@ -152,8 +141,9 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
   ) external returns (bytes32 requestId) {
     Request storage request = requests[_requestId];
     require(request.status != Status.Completed, "Request already completed!");
-    bytes32 hashToCheck = keccak256(abi.encodePacked(_requestId, request.amount, publicKeyToAmosId[msg.sender], request.message, msg.sender));
-    args[0] = Strings.toHexString(uint256(hashToCheck));
+    // bytes32 hashToCheck = keccak256(abi.encodePacked(_requestId, request.amount, publicKeyToAmosId[msg.sender], request.message, msg.sender));
+    // args[0] = Strings.toHexString(uint256(hashToCheck));
+    // args[1]= publicKeyToAmosId[msg.sender];
     FunctionsRequest.Request memory req;
     req.initializeRequestForInlineJavaScript(source);
     if (encryptedSecretsUrls.length > 0) {
