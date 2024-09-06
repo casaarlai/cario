@@ -1,4 +1,4 @@
-# 🏗 CARIO
+![Cario](./packages//nextjs/public/logo.svg)
 
 <h4 align="center">
   <!-- <a href="https://docs.scaffoldeth.io">Documentation</a> | -->
@@ -37,7 +37,7 @@ Before you begin, you need to install the following tools:
 
 ## Quickstart
 
-To get started with Scaffold-ETH 2, follow the steps below:
+To get started with Cario, follow the steps below:
 
 1. Install dependencies if it was skipped in CLI:
 
@@ -75,16 +75,3 @@ Run smart contract test with `yarn foundry:test`
 - Edit your smart contract `CarioIntent.sol` in `packages/foundry/contracts`
 - Edit your frontend homepage at `packages/nextjs/app/page.tsx`. For guidance on [routing](https://nextjs.org/docs/app/building-your-application/routing/defining-routes) and configuring [pages/layouts](https://nextjs.org/docs/app/building-your-application/routing/pages-and-layouts) checkout the Next.js documentation.
 - Edit your deployment scripts in `packages/foundry/script`
-
-
-## Documentation
-
-Visit our [docs](https://docs.scaffoldeth.io) to learn how to start building with Scaffold-ETH 2.
-
-To know more about its features, check out our [website](https://scaffoldeth.io).
-
-## Contributing to Scaffold-ETH 2
-
-We welcome contributions to Scaffold-ETH 2!
-
-Please see [CONTRIBUTING.MD](https://github.com/scaffold-eth/scaffold-eth-2/blob/main/CONTRIBUTING.md) for more information and guidelines for contributing to Scaffold-ETH 2.

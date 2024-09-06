@@ -49,7 +49,7 @@ const Market: NextPage = () => {
         <div className="overflow-x-auto border rounded">
           <table className="table table-auto md:table-fixed flex flex-col gap-3">
             <thead>
-              <tr className="border-0">
+              <tr className="border-0 bg-base-200">
                 <th className="w-2/12">Requester</th>
                 <th className="w-2/12">Amount</th>
                 <th className="w-2/12">Message</th>
@@ -67,23 +67,27 @@ const Market: NextPage = () => {
               )}
               {!loading &&
                 requests.map((request: any, index: number) => (
-                  <tr key={index} className="border-0 bg-base-100 hover cursor-pointer">
-                    <td>{request.requester?.slice(0, 6) + "..." + request.requester?.slice(-4)}</td>
-                    <td>{formatEther(request.amount)}</td>
-                    <td>{request.message.length > 20 ? `${request.message.substring(0, 20)}...` : request.message}</td>
-                    <td>{getMinutesSince(request.blockTimestamp)}</td>
-                    <td className="flex items-center justify-center h-full">
-                      <button
-                        onClick={() => {
-                          setChosenRequest(requests[index]);
-                          acceptRequestModalRef.current?.showModal();
-                        }}
-                        className="btn btn-sm btn-neutral"
-                      >
-                        Accept
-                      </button>
-                    </td>
-                  </tr>
+                  <>
+                    <tr key={index} className="border-0 bg-base-100 hover:brightness-110 transition cursor-pointer">
+                      <td>{request.requester?.slice(0, 6) + "..." + request.requester?.slice(-4)}</td>
+                      <td>{formatEther(request.amount)}</td>
+                      <td>
+                        {request.message.length > 20 ? `${request.message.substring(0, 20)}...` : request.message}
+                      </td>
+                      <td>{getMinutesSince(request.blockTimestamp)}</td>
+                      <td className="flex items-center justify-center h-full">
+                        <button
+                          onClick={() => {
+                            setChosenRequest(requests[index]);
+                            acceptRequestModalRef.current?.showModal();
+                          }}
+                          className="btn btn-sm btn-neutral"
+                        >
+                          Accept
+                        </button>
+                      </td>
+                    </tr>
+                  </>
                 ))}
             </tbody>
           </table>
@@ -212,7 +216,7 @@ const AcceptRequest = ({
               If you are not listed under the Amos, you can still accept the request but you will not be eligible to
               receive the reward even if you fulfil the request.
             </p>
-            <form ref={formRef} className="flex flex-col gap-4">
+            <form onSubmit={e => e.preventDefault()} ref={formRef} className="flex flex-col gap-4">
               <label className="form-control w-full">
                 <div className="label">
                   <span className="label-text">Your Amos ID (Youtube Channel ID)</span>
