@@ -1,24 +1,22 @@
 "use client";
 
+import Link from "next/link";
 import type { NextPage } from "next";
-import { useAccount } from "wagmi";
-import { Address } from "~~/components/scaffold-eth";
 
 const Home: NextPage = () => {
-  const { address: connectedAddress } = useAccount();
-
   return (
     <>
-      <div className="flex items-center flex-col flex-grow pt-10">
-        <div className="px-5">
-          <h1 className="text-center">
-            <span className="block text-2xl mb-2">Welcome to</span>
-            <span className="block text-4xl font-bold">Cario</span>
+      <div className="px-6 pt-12 lg:px-24 lg:pt-28">
+        <div className="">
+          <h1 className="max-w-xl">
+            <span className="block text-4xl font-bold">
+              Cario connects <span className="text-sky-200">community leaders</span> and{" "}
+              <span className="text-sky-200">brands</span>, empowering brand reach through influence.
+            </span>
           </h1>
-          <div className="flex justify-center items-center space-x-2 flex-col sm:flex-row">
-            <p className="my-2 font-medium">Connected Address:</p>
-            <Address address={connectedAddress} />
-          </div>
+          <button className="btn btn-primary mt-6">
+            <Link href="/market">Explore the markets</Link>
+          </button>
         </div>
       </div>
     </>

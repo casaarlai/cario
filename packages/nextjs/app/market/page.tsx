@@ -46,7 +46,7 @@ const Market: NextPage = () => {
             <AcceptRequest modalRef={acceptRequestModalRef} refetch={refetch} request={chosenRequest} />
           )}
         </div>
-        <div className="overflow-x-auto border rounded">
+        <div className="overflow-x-auto shadow-md shadow-secondary rounded">
           <table className="table table-auto md:table-fixed flex flex-col gap-3">
             <thead>
               <tr className="border-0 bg-base-200">

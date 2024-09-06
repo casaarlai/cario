@@ -4,7 +4,21 @@
 
 :root,
 [data-theme] {
-  background: oklch(var(--b2));
+  background: linear-gradient(-45deg, #116685, #2A3655, #385183, #1da485);
+  background-size: 400% 400%;
+  animation: gradient 60s ease infinite reverse;
+}
+
+@keyframes gradient {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
 body {
