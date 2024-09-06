@@ -36,6 +36,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
   }
 
   mapping(uint256 => Request) public requests;
+  mapping(string => Request[]) public amosRequests; //mapping to store the requests accepted by a given Amos
   mapping(address => uint256) public carioRequests; //mapping to store the requests for a given Cario user
   mapping(uint256 => string[]) public cariosToAmos; //mapping to store the Amos address for a given Cario user
   mapping(uint256 => uint8) public carioToAmosCount; //mapping to store the number of Amos for a given Cario user
@@ -115,6 +116,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     // Check if _channelId is already in cariosToAmos[_requestId]
     require(amosIdExists[_requestId][_amosId], "Channel ID not requested!");
     publicKeyToAmosId[msg.sender] = _amosId;
+    amosRequests[_amosId].push(request);
 
     emit RequestAccepted(_requestId, msg.sender);
     //return a keccak of the _requestId, amount, amosid, message and msg.sender
