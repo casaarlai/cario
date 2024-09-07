@@ -18,6 +18,9 @@ const Home: NextPage = () => {
             <Link href="/market">Explore the markets</Link>
           </button>
         </div>
+        <div className="mt-12 flex justify-center">
+          <img src="/flowChart.png" alt="Flowchart" className="w-3/4 h-auto" />
+        </div>
       </div>
     </>
   );
