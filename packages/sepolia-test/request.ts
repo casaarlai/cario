@@ -12,7 +12,7 @@ interface CarioIntentRequest {
   msg: string;
 }
 
-const consumerAddress = "0x8A2CB13dde3Acdc99207855cFF39530790e98B03";
+const consumerAddress = "0xf1A711837Fee7b0ddB43A73c7b8b23F432f1c6Fb";
 const subscriptionId = 164; // REPLACE this with your subscription ID
 const explorerUrl= "https://sepolia.basescan.org";
 // hardcoded for Polygon Mumbai

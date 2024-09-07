@@ -86,7 +86,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
   ) external payable returns (uint256 requestId){
     require(msg.value > 0, "Must send some ETH");
 
-    uint256 requestId = nextRequestId++;
+    requestId = nextRequestId++;
     requests[requestId] = Request({
       requester: msg.sender,
       message: _message,

@@ -8,9 +8,9 @@ dataSources:
     name: CarioIntent
     network: base-sepolia
     source:
-      address: "0x273382a07d835a3fa82b6161f5c774f6394de405"
+      address: "0xf1A711837Fee7b0ddB43A73c7b8b23F432f1c6Fb"
       abi: CarioIntent
-      startBlock: 14671645
+      startBlock: 14931645
     mapping:
       kind: ethereum/events
       apiVersion: 0.0.7

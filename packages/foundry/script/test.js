@@ -112,44 +112,17 @@ function main() {
     });
   });
 
-  const TARGET_DIR = "../nextjs/contracts/";
+const TARGET_DIR_GRAPH = "./";
+// const TARGET_DIR_GRAPH = "../cariosg/abis/";
 
-  const fileContent = Object.entries(allGeneratedContracts).reduce(
-    (content, [chainId, chainConfig]) => {
-      return `${content}${parseInt(chainId).toFixed(0)}:${JSON.stringify(
-        chainConfig,
-        null,
-        2
-      )},`;
-    },
-    ""
-  );
 
-  if (!fs.existsSync(TARGET_DIR)) {
-    fs.mkdirSync(TARGET_DIR);
-  }
-  fs.writeFileSync(
-    `${TARGET_DIR}deployedContracts.ts`,
-    prettier.format(
-      `${generatedContractComment} import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract"; \n\n
- const deployedContracts = {${fileContent}} as const; \n\n export default deployedContracts satisfies GenericContractsDeclaration`,
-      {
-        parser: "typescript",
-      }
-    )
-  );
-const TARGET_DIR_GRAPH = "../cariosg/abis/";
+
 
 if (!fs.existsSync(TARGET_DIR_GRAPH)) {
   fs.mkdirSync(TARGET_DIR_GRAPH);
 }
 fs.writeFileSync(
-  `${TARGET_DIR_GRAPH}CarioIntent.json`,JSON.stringify(allGeneratedContracts["84532"].CarioIntent.abi));
+  `${TARGET_DIR_GRAPH}carioIntent2.json`,JSON.stringify(allGeneratedContracts["84532"].CarioIntent.abi));
 }
 
-try {
-  main();
-} catch (error) {
-  console.error(error);
-  process.exitCode = 1;
-}
+main();

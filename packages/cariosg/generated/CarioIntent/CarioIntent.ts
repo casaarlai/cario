@@ -309,6 +309,38 @@ export class CarioIntent extends ethereum.SmartContract {
     return new CarioIntent("CarioIntent", address);
   }
 
+  acceptRequest(_requestId: BigInt, _amosId: string): Bytes {
+    let result = super.call(
+      "acceptRequest",
+      "acceptRequest(uint256,string):(bytes32)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_requestId),
+        ethereum.Value.fromString(_amosId),
+      ],
+    );
+
+    return result[0].toBytes();
+  }
+
+  try_acceptRequest(
+    _requestId: BigInt,
+    _amosId: string,
+  ): ethereum.CallResult<Bytes> {
+    let result = super.tryCall(
+      "acceptRequest",
+      "acceptRequest(uint256,string):(bytes32)",
+      [
+        ethereum.Value.fromUnsignedBigInt(_requestId),
+        ethereum.Value.fromString(_amosId),
+      ],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBytes());
+  }
+
   carioRequests(param0: Address): BigInt {
     let result = super.call(
       "carioRequests",
@@ -385,6 +417,29 @@ export class CarioIntent extends ethereum.SmartContract {
     }
     let value = result.value;
     return ethereum.CallResult.fromValue(value[0].toString());
+  }
+
+  clrequestToRequests(param0: Bytes): BigInt {
+    let result = super.call(
+      "clrequestToRequests",
+      "clrequestToRequests(bytes32):(uint256)",
+      [ethereum.Value.fromFixedBytes(param0)],
+    );
+
+    return result[0].toBigInt();
+  }
+
+  try_clrequestToRequests(param0: Bytes): ethereum.CallResult<BigInt> {
+    let result = super.tryCall(
+      "clrequestToRequests",
+      "clrequestToRequests(bytes32):(uint256)",
+      [ethereum.Value.fromFixedBytes(param0)],
+    );
+    if (result.reverted) {
+      return new ethereum.CallResult();
+    }
+    let value = result.value;
+    return ethereum.CallResult.fromValue(value[0].toBigInt());
   }
 
   getLatestResponse(): Bytes {
@@ -626,6 +681,7 @@ export class CarioIntent extends ethereum.SmartContract {
     encryptedSecretsUrls: Bytes,
     donHostedSecretsSlotID: i32,
     donHostedSecretsVersion: BigInt,
+    _requestId: BigInt,
     args: Array<string>,
     bytesArgs: Array<Bytes>,
     subscriptionId: BigInt,
@@ -634,7 +690,7 @@ export class CarioIntent extends ethereum.SmartContract {
   ): Bytes {
     let result = super.call(
       "sendRequest",
-      "sendRequest(string,bytes,uint8,uint64,string[],bytes[],uint64,uint32,bytes32):(bytes32)",
+      "sendRequest(string,bytes,uint8,uint64,uint256,string[],bytes[],uint64,uint32,bytes32):(bytes32)",
       [
         ethereum.Value.fromString(source),
         ethereum.Value.fromBytes(encryptedSecretsUrls),
@@ -642,6 +698,7 @@ export class CarioIntent extends ethereum.SmartContract {
           BigInt.fromI32(donHostedSecretsSlotID),
         ),
         ethereum.Value.fromUnsignedBigInt(donHostedSecretsVersion),
+        ethereum.Value.fromUnsignedBigInt(_requestId),
         ethereum.Value.fromStringArray(args),
         ethereum.Value.fromBytesArray(bytesArgs),
         ethereum.Value.fromUnsignedBigInt(subscriptionId),
@@ -658,6 +715,7 @@ export class CarioIntent extends ethereum.SmartContract {
     encryptedSecretsUrls: Bytes,
     donHostedSecretsSlotID: i32,
     donHostedSecretsVersion: BigInt,
+    _requestId: BigInt,
     args: Array<string>,
     bytesArgs: Array<Bytes>,
     subscriptionId: BigInt,
@@ -666,7 +724,7 @@ export class CarioIntent extends ethereum.SmartContract {
   ): ethereum.CallResult<Bytes> {
     let result = super.tryCall(
       "sendRequest",
-      "sendRequest(string,bytes,uint8,uint64,string[],bytes[],uint64,uint32,bytes32):(bytes32)",
+      "sendRequest(string,bytes,uint8,uint64,uint256,string[],bytes[],uint64,uint32,bytes32):(bytes32)",
       [
         ethereum.Value.fromString(source),
         ethereum.Value.fromBytes(encryptedSecretsUrls),
@@ -674,6 +732,7 @@ export class CarioIntent extends ethereum.SmartContract {
           BigInt.fromI32(donHostedSecretsSlotID),
         ),
         ethereum.Value.fromUnsignedBigInt(donHostedSecretsVersion),
+        ethereum.Value.fromUnsignedBigInt(_requestId),
         ethereum.Value.fromStringArray(args),
         ethereum.Value.fromBytesArray(bytesArgs),
         ethereum.Value.fromUnsignedBigInt(subscriptionId),
@@ -777,6 +836,10 @@ export class AcceptRequestCall__Outputs {
   constructor(call: AcceptRequestCall) {
     this._call = call;
   }
+
+  get hashRequest(): Bytes {
+    return this._call.outputValues[0].value.toBytes();
+  }
 }
 
 export class CreateRequestCall extends ethereum.Call {
@@ -810,6 +873,10 @@ export class CreateRequestCall__Outputs {
 
   constructor(call: CreateRequestCall) {
     this._call = call;
+  }
+
+  get requestId(): BigInt {
+    return this._call.outputValues[0].value.toBigInt();
   }
 }
 
@@ -884,24 +951,28 @@ export class SendRequestCall__Inputs {
     return this._call.inputValues[3].value.toBigInt();
   }
 
+  get _requestId(): BigInt {
+    return this._call.inputValues[4].value.toBigInt();
+  }
+
   get args(): Array<string> {
-    return this._call.inputValues[4].value.toStringArray();
+    return this._call.inputValues[5].value.toStringArray();
   }
 
   get bytesArgs(): Array<Bytes> {
-    return this._call.inputValues[5].value.toBytesArray();
+    return this._call.inputValues[6].value.toBytesArray();
   }
 
   get subscriptionId(): BigInt {
-    return this._call.inputValues[6].value.toBigInt();
-  }
-
-  get gasLimit(): BigInt {
     return this._call.inputValues[7].value.toBigInt();
   }
 
+  get gasLimit(): BigInt {
+    return this._call.inputValues[8].value.toBigInt();
+  }
+
   get donID(): Bytes {
-    return this._call.inputValues[8].value.toBytes();
+    return this._call.inputValues[9].value.toBytes();
   }
 }
 

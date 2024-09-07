@@ -650,7 +650,7 @@ const deployedContracts = {
   },
   84532: {
     CarioIntent: {
-      address: "0x8A2CB13dde3Acdc99207855cFF39530790e98B03",
+      address: "0x17f7eD466d219DfbA611456F7A00A832D4e85171",
       abi: [
         {
           type: "constructor",
