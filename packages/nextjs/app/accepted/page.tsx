@@ -3,10 +3,10 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 import { ApolloQueryResult, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
-import { encodePacked, formatEther, keccak256, parseEther } from "viem";
+import { encodePacked, formatEther, keccak256 } from "viem";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
-import { GET_ACCEPTED_AMOS_BY_REQUEST_ID } from "~~/utils/queries/getAmosRequests";
-import { GET_REQUESTS } from "~~/utils/queries/getRequests";
+import { GET_ACCEPTED_AMOS_BY_AMOS_ID, GET_ACCEPTED_AMOS_BY_REQUEST_ID } from "~~/utils/queries/getAmosRequests";
+import { GET_REQUESTS_BY_IDS } from "~~/utils/queries/getRequests";
 import { notification } from "~~/utils/scaffold-eth";
 
 // Function to generate hash for message
@@ -19,23 +19,38 @@ function hashRequest(_requestId: number, amount: number, _amosId: string, messag
   return keccak256(encoded);
 }
 
-const Market: NextPage = () => {
-  const createRequestModalRef = useRef<HTMLDialogElement>(null);
+const Accepted: NextPage = () => {
   const acceptRequestModalRef = useRef<HTMLDialogElement>(null);
+  const amosIdInputRef = useRef<HTMLInputElement>(null);
 
+  const [amosId, setAmosId] = useState<string | null>(null);
   const [chosenRequest, setChosenRequest] = useState(null);
+
+  const { loading: acceptedAmosLoading, data: acceptedAmos } = useQuery(GET_ACCEPTED_AMOS_BY_AMOS_ID, {
+    variables: { amosId },
+    notifyOnNetworkStatusChange: false,
+    pollInterval: 1000,
+    fetchPolicy: "no-cache",
+  });
+
+  const requestIds =
+    !acceptedAmosLoading &&
+    acceptedAmos?.acceptedAmos_collection.map((a: { requestId: string }) => {
+      return a.requestId;
+    });
 
   const {
     loading: requestsLoading,
     data: r,
     refetch: refetchRequests,
-  } = useQuery(GET_REQUESTS, {
+  } = useQuery(GET_REQUESTS_BY_IDS, {
+    variables: { requestIds },
     notifyOnNetworkStatusChange: false,
-    pollInterval: 100,
+    pollInterval: 1000,
     fetchPolicy: "no-cache",
   });
 
-  const requests = r?.requests.sort((a: any, b: any) => b.blockTimestamp - a.blockTimestamp) || [];
+  const requests = !requestsLoading && r?.requests;
 
   // Function to get minutes, hours or days since blockTimestamp
   const getMinutesSince = (blockTimestamp: number) => {
@@ -53,11 +68,20 @@ const Market: NextPage = () => {
     <>
       <div className="container mx-auto px-4 md:px-0 py-10">
         <div className="flex justify-between items-center mb-4">
-          <h1 className="text-xl font-bold">Market</h1>
-          <button className="btn btn-primary btn-sm" onClick={() => createRequestModalRef.current?.showModal()}>
-            Create
-          </button>
-          <CreateRequest modalRef={createRequestModalRef} refetch={refetchRequests} />
+          <h1 className="text-xl font-bold">Find accepted requests</h1>
+          <div className="join">
+            <input
+              className="input input-bordered join-item"
+              placeholder="Amos ID (e.g. @chainlink)"
+              ref={amosIdInputRef}
+            />
+            <button
+              onClick={() => setAmosId(amosIdInputRef.current?.value || null)}
+              className="btn join-item rounded-r"
+            >
+              Search
+            </button>
+          </div>
           {chosenRequest && (
             <AcceptRequest modalRef={acceptRequestModalRef} refetch={refetchRequests} request={chosenRequest} />
           )}
@@ -81,7 +105,16 @@ const Market: NextPage = () => {
                   </td>
                 </tr>
               )}
+              {!requestsLoading && !requests && (
+                <tr className="border-0 bg-base-100">
+                  <td colSpan={5} className="text-center">
+                    No requests found.
+                  </td>
+                </tr>
+              )}
               {!requestsLoading &&
+                requests &&
+                requests.length > 0 &&
                 requests.map((request: any, index: number) => {
                   const hashed = hashRequest(
                     request.requestId,
@@ -105,7 +138,7 @@ const Market: NextPage = () => {
                             }}
                             className="btn btn-sm btn-neutral"
                           >
-                            Accept
+                            Fulfill
                           </button>
                         </td>
                       </tr>
@@ -305,85 +338,4 @@ const AcceptRequest = ({
   );
 };
 
-const CreateRequest = ({
-  modalRef,
-  refetch,
-}: {
-  modalRef: RefObject<HTMLDialogElement>;
-  refetch: () => Promise<ApolloQueryResult<any>>;
-}) => {
-  const formRef = useRef<HTMLFormElement>(null);
-  const { writeContractAsync } = useScaffoldWriteContract("CarioIntent");
-
-  const handleCreateRequest = async () => {
-    const amos = formRef
-      .current!.amos.value.split(";")
-      .map((id: string) => id.trim())
-      .filter((id: string) => id.length > 0);
-    const amount = formRef.current!.amount.value;
-    const message = formRef.current!.message.value;
-    try {
-      await writeContractAsync({
-        functionName: "createRequest",
-        args: [amos, message],
-        value: parseEther(amount),
-      });
-
-      formRef.current?.reset();
-      modalRef.current?.close();
-      refetch();
-    } catch (e) {
-      console.error(e);
-    }
-  };
-  return (
-    <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
-      <div className="modal-box">
-        <h3 className="font-bold text-lg">Create a request</h3>
-        <p className="py-4">
-          Creating a request adds a new request to the market, allowing multiple Amos (KOLs & celebrities) to fill up
-          your request.
-        </p>
-        <form ref={formRef} className="flex flex-col gap-4">
-          <label className="form-control w-full">
-            <div className="label">
-              <span className="label-text">Amos (Youtube Channel IDs separated by a semicolon)</span>
-            </div>
-            <input
-              type="text"
-              name="amos"
-              placeholder="UCUZHFZ9jIKrLroW8LcyJEQQ;@chainlink"
-              className="input input-bordered w-full"
-            />
-          </label>
-          <label className="form-control w-full">
-            <div className="label">
-              <span className="label-text">Amount (ETH)</span>
-            </div>
-            <input type="text" name="amount" placeholder="0.01" className="input input-bordered w-full" />
-          </label>
-          <label className="form-control">
-            <div className="label">
-              <span className="label-text">Your message</span>
-            </div>
-            <textarea
-              name="message"
-              className="textarea textarea-bordered h-24"
-              placeholder="Looking for partners who will help Cario expand its reach..."
-            ></textarea>
-          </label>
-        </form>
-        <div className="modal-action flex items-center gap-2">
-          <form method="dialog">
-            <button className="btn btn-sm btn-secondary">Cancel</button>
-          </form>
-          <button onClick={handleCreateRequest} className="btn btn-primary btn-sm">
-            Submit
-          </button>
-        </div>
-      </div>
-    </dialog>
-  );
-};
-
-export default Market;
+export default Accepted;

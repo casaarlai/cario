@@ -10,7 +10,7 @@ type Request @entity(immutable: true) {
   transactionHash: Bytes!
 }
 
-type AcceptedAmos @entity(immutable: false) {
+type AcceptedAmos @entity(immutable: true) {
   id: String!
   amosIds: [String!]
   requestId: BigInt!

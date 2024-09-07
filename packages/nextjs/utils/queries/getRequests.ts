@@ -15,3 +15,19 @@ export const GET_REQUESTS = gql`
     }
   }
 `;
+
+export const GET_REQUESTS_BY_IDS = gql`
+  query GetRequestsByIds($requestIds: [ID!]!) {
+    requests(where: { requestId_in: $requestIds }) {
+      id
+      requestId
+      requester
+      message
+      amount
+      cariosToAmos
+      blockNumber
+      blockTimestamp
+      transactionHash
+    }
+  }
+`;
