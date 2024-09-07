@@ -7,7 +7,7 @@ import { GenericContractsDeclaration } from "~~/utils/scaffold-eth/contract";
 const deployedContracts = {
   31337: {
     CarioIntent: {
-      address: "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+      address: "0x5fbdb2315678afecb367f032d93f642f64180aa3",
       abi: [
         {
           type: "constructor",
@@ -491,6 +491,12 @@ const deployedContracts = {
               type: "address",
               indexed: true,
               internalType: "address",
+            },
+            {
+              name: "amosId",
+              type: "string",
+              indexed: false,
+              internalType: "string",
             },
           ],
           anonymous: false,
@@ -650,7 +656,7 @@ const deployedContracts = {
   },
   84532: {
     CarioIntent: {
-      address: "0x17f7eD466d219DfbA611456F7A00A832D4e85171",
+      address: "0x0c0a3416831e7eeb50a015f0f04a726003a4a16c",
       abi: [
         {
           type: "constructor",
@@ -1134,6 +1140,12 @@ const deployedContracts = {
               type: "address",
               indexed: true,
               internalType: "address",
+            },
+            {
+              name: "amosId",
+              type: "string",
+              indexed: false,
+              internalType: "string",
             },
           ],
           anonymous: false,

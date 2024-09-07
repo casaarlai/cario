@@ -154,3 +154,75 @@ export class Request extends Entity {
     this.set("transactionHash", Value.fromBytes(value));
   }
 }
+
+export class AcceptedAmos extends Entity {
+  constructor(id: string) {
+    super();
+    this.set("id", Value.fromString(id));
+  }
+
+  save(): void {
+    let id = this.get("id");
+    assert(id != null, "Cannot save AcceptedAmos entity without an ID");
+    if (id) {
+      assert(
+        id.kind == ValueKind.STRING,
+        `Entities of type AcceptedAmos must have an ID of type String but the id '${id.displayData()}' is of type ${id.displayKind()}`,
+      );
+      store.set("AcceptedAmos", id.toString(), this);
+    }
+  }
+
+  static loadInBlock(id: string): AcceptedAmos | null {
+    return changetype<AcceptedAmos | null>(
+      store.get_in_block("AcceptedAmos", id),
+    );
+  }
+
+  static load(id: string): AcceptedAmos | null {
+    return changetype<AcceptedAmos | null>(store.get("AcceptedAmos", id));
+  }
+
+  get id(): string {
+    let value = this.get("id");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toString();
+    }
+  }
+
+  set id(value: string) {
+    this.set("id", Value.fromString(value));
+  }
+
+  get amosIds(): Array<string> | null {
+    let value = this.get("amosIds");
+    if (!value || value.kind == ValueKind.NULL) {
+      return null;
+    } else {
+      return value.toStringArray();
+    }
+  }
+
+  set amosIds(value: Array<string> | null) {
+    if (!value) {
+      this.unset("amosIds");
+    } else {
+      this.set("amosIds", Value.fromStringArray(<Array<string>>value));
+    }
+  }
+
+  get requestId(): BigInt {
+    let value = this.get("requestId");
+    if (!value || value.kind == ValueKind.NULL) {
+      throw new Error("Cannot return null for a required field.");
+    } else {
+      return value.toBigInt();
+    }
+  }
+
+  set requestId(value: BigInt) {
+    this.set("requestId", Value.fromBigInt(value));
+  }
+}

@@ -1,27 +1,39 @@
 import {
+  RequestAccepted as RequestAcceptedEvent,
   RequestCreated as RequestCreatedEvent
 } from "../generated/CarioIntent/CarioIntent"
 import {
-  Request
+  Request,
+  AcceptedAmos
 } from "../generated/schema"
 import { CarioIntent } from "../generated/CarioIntent/CarioIntent"
 import { ethereum } from "@graphprotocol/graph-ts"
 import { BigInt } from "@graphprotocol/graph-ts"
 
 
-// export function handleRequestAccepted(event: RequestAcceptedEvent): void {
-//   let entity = new RequestAccepted(
-//     event.transaction.hash.concatI32(event.logIndex.toI32())
-//   )
-//   entity.requestId = event.params.requestId
-//   entity.famousAmos = event.params.famousAmos
+export function handleRequestAccepted(event: RequestAcceptedEvent): void {
+  let entity = AcceptedAmos.load(event.params.requestId.toString())
+  if (entity == null) {
+    entity = new AcceptedAmos(
+      event.params.requestId.toString()
+    )
+  }
 
-//   entity.blockNumber = event.block.number
-//   entity.blockTimestamp = event.block.timestamp
-//   entity.transactionHash = event.transaction.hash
+  entity.requestId = event.params.requestId
+  // Initialize the amosIds array if it doesn't exist
+  if (entity.amosIds == null) {
+    entity.amosIds = []
+  }
 
-//   entity.save()
-// }
+  // Add the new _amosId to the array
+  let amosIds = entity.amosIds as string[]
+  amosIds.push(event.params._amosId)
+
+  // Assign the updated array back to the entity
+  entity.amosIds = amosIds
+
+  entity.save()
+}
 
 // export function handleRequestCompleted(event: RequestCompletedEvent): void {
 //   let entity = new RequestCompleted(

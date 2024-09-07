@@ -9,3 +9,9 @@ type Request @entity(immutable: true) {
   blockTimestamp: BigInt!
   transactionHash: Bytes!
 }
+
+type AcceptedAmos @entity(immutable: false) {
+  id: String!
+  amosIds: [String!]
+  requestId: BigInt!
+}

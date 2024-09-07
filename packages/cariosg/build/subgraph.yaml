@@ -8,7 +8,7 @@ dataSources:
     name: CarioIntent
     network: base-sepolia
     source:
-      address: "0xf1A711837Fee7b0ddB43A73c7b8b23F432f1c6Fb"
+      address: "0x0C0A3416831e7EEB50A015F0f04a726003a4a16c"
       abi: CarioIntent
       startBlock: 14931645
     mapping:
@@ -16,11 +16,14 @@ dataSources:
       apiVersion: 0.0.7
       language: wasm/assemblyscript
       entities:
+        - RequestAccepted
         - RequestCreated
       abis:
         - name: CarioIntent
           file: CarioIntent/abis/CarioIntent.json
       eventHandlers:
+        - event: RequestAccepted(indexed uint256,indexed address,string)
+          handler: handleRequestAccepted
         - event: RequestCreated(indexed uint256,indexed address,string,uint256)
           handler: handleRequestCreated
       file: CarioIntent/CarioIntent.wasm

@@ -74,6 +74,10 @@ export class RequestAccepted__Params {
   get famousAmos(): Address {
     return this._event.parameters[1].value.toAddress();
   }
+
+  get _amosId(): string {
+    return this._event.parameters[2].value.toString();
+  }
 }
 
 export class RequestCompleted extends ethereum.Event {

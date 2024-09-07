@@ -55,7 +55,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     string message,
     uint256 amount
   );
-  event RequestAccepted(uint256 indexed requestId, address indexed famousAmos);
+  event RequestAccepted(uint256 indexed requestId, address indexed famousAmos, string amosId);
   event RequestCompleted(uint256 indexed requestId, string postId);
 
   bytes32 public s_lastRequestId;
@@ -116,7 +116,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     require(amosIdExists[_requestId][_amosId], "Channel ID not requested!");
     publicKeyToAmosId[msg.sender] = _amosId;
 
-    emit RequestAccepted(_requestId, msg.sender);
+    emit RequestAccepted(_requestId, msg.sender, _amosId);
     //return a keccak of the _requestId, amount, amosid, message and msg.sender
     return keccak256(abi.encodePacked(_requestId, request.amount, _amosId, request.message, msg.sender));
   }
