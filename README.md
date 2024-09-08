@@ -15,6 +15,10 @@
 4. Add ZK/Fenix for messages
 
 
+## Deployments
+0xe3BE1b9818Cd42029e5eeD010Bcf2EdaFF9e82B0 -> SignProtocolIssuer.sol
+0x8AF4091AE8cEedE7cb6dC47B9829124d2a48fa6A -> Cario Intent.sol
+
 🧪 An open-source, up-to-date toolkit for building decentralized applications (dapps) on the Ethereum blockchain. It's designed to make it easier for developers to create and deploy smart contracts and build user interfaces that interact with those contracts.
 
 ⚙️ Built using NextJS, RainbowKit, Foundry, Wagmi, Viem, and Typescript.
