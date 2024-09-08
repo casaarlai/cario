@@ -75,10 +75,12 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     bytes32 indexed requestId, bytes response, bytes err, bool success
   );
 
-  constructor(address router)
+  constructor(address router, address _issuerSimpleAddress)
     FunctionsClient(router)
     ConfirmedOwner(msg.sender)
-  { }
+  {
+    issuerSimpleAddress = _issuerSimpleAddress;
+   }
 
   /*
     * Upon create we will do a dutch auction to find the best Amos 
@@ -149,9 +151,10 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     // args[0] = Strings.toHexString(uint256(hashToCheck));
     // args[1]= publicKeyToAmosId[msg.sender];
 
-    // Update the minimum bid at point of sendingRequest
+    // Update the minimum bid at point of sendingRequest and create the attestation
     request.amount = getLatestMinimumBid(clrequestToRequests[requestId]);
-
+    (bool success, ) = issuerSimpleAddress.call(abi.encodeWithSignature("createAndSendAttestation(string,address,address,uint256)", request.postId, msg.sender, request.requester, request.amount));
+    require(success, "Sign execution failed");
 
     FunctionsRequest.Request memory req;
     req.initializeRequestForInlineJavaScript(source);
@@ -195,8 +198,7 @@ function fulfillRequest(
     emit RequestCompleted(clrequestToRequests[requestId], request.postId);
 
     // Transfer the amount at the time of fulfillment
-    uint256 amountToTransfer = request.amount;
-    request.requester.transfer(amountToTransfer);
+    request.requester.transfer(request.amount);
 
     s_lastResponse = response;
     s_lastError = err;
@@ -209,6 +211,5 @@ function fulfillRequest(
 
   /**
    * Chainlink functions end
-   */
-  
+   */  
 }

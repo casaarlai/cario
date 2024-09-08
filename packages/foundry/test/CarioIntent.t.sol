@@ -9,7 +9,7 @@ contract CarioIntentTest is Test {
     address router = address(0x123); // Mock router address
 
     function setUp() public {
-        carioIntent = new CarioIntent(router);
+        carioIntent = new CarioIntent(router, address(0x00));
     }
 
     function testCreateRequest() public {
