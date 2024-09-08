@@ -22,8 +22,9 @@ contract CarioIntentTest is Test {
         vm.deal(address(this), 1 ether);
         carioIntent.createRequest{value: 1 ether}(famousAmos, message);
 
-        (address requester, string memory messageReturned, uint256 amount, CarioIntent.Status status, string memory postId) = carioIntent.requests(0);
+        (address requester, uint256 createdTime, string memory messageReturned, uint256 amount, CarioIntent.Status status, string memory postId) = carioIntent.requests(0);
         assertEq(requester, address(this));
+        assertEq(createdTime, block.timestamp);
         assertEq(messageReturned, message);
         assertEq(amount, 1 ether);
         assertEq(uint(status), uint(CarioIntent.Status.Created));

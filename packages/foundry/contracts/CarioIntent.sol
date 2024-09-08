@@ -10,7 +10,8 @@ import { FunctionsRequest } from
 import "@openzeppelin/contracts/utils/Strings.sol";
 
 /*
-* In this contract we will 
+* This contract accepts intents for endorsements. 
+* Price reduces as time passes
 */
 
 contract CarioIntent is FunctionsClient, ConfirmedOwner {
@@ -19,6 +20,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
 
   enum Status { Created, Accepted, Completed }
   
+  uint256 public constant DISCOUNT_RATE = 100;
   /* define the request struct which will be used to store the request details
     * requester: the address of the user who made the request
     * famousAmos: the address of the Amos who accepted the request
@@ -28,7 +30,8 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     * postId: the id of the post the Amos will emit and that needs to be verified by a CL function
     */
   struct Request {
-    address requester;
+    address payable requester;
+    uint256 createdTime;
     string message;
     uint256 amount;
     Status status;
@@ -88,7 +91,8 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
 
     requestId = nextRequestId++;
     requests[requestId] = Request({
-      requester: msg.sender,
+      requester: payable(msg.sender),
+      createdTime: block.timestamp,
       message: _message,
       amount: msg.value,
       status: Status.Created,
@@ -144,6 +148,10 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     // bytes32 hashToCheck = keccak256(abi.encodePacked(_requestId, request.amount, publicKeyToAmosId[msg.sender], request.message, msg.sender));
     // args[0] = Strings.toHexString(uint256(hashToCheck));
     // args[1]= publicKeyToAmosId[msg.sender];
+
+    // Update the minimum bid at point of sendingRequest
+    updateMinimumBid(clrequestToRequests[requestId]);
+
     FunctionsRequest.Request memory req;
     req.initializeRequestForInlineJavaScript(source);
     if (encryptedSecretsUrls.length > 0) {
@@ -158,19 +166,26 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     clrequestToRequests[s_lastRequestId] = _requestId;
     return s_lastRequestId;
   }
- 
-  /**
-   * @notice Store latest result/error
-   * @param requestId The request ID, returned by sendRequest()
-   * @param response Aggregated response from the user code
-   * @param err Aggregated error from the user code or from the execution pipeline
-   * Either response or error parameter will be set, but never both
-   */
-  function fulfillRequest(
+
+  function updateMinimumBid(uint256 _requestId) internal {
+    Request storage request = requests[_requestId];
+    uint256 currentTime = block.timestamp;
+    uint256 timeElapsed = currentTime - request.createdTime;
+    uint256 discount = DISCOUNT_RATE * timeElapsed;
+    uint256 newAmount = request.amount - discount;
+    
+    if (newAmount <= 0) {
+        newAmount = 1; // Minimum bid is 1 wei
+    }
+    
+    request.amount = newAmount;
+}
+
+function fulfillRequest(
     bytes32 requestId,
     bytes memory response,
     bytes memory err
-  ) internal override {
+) internal override {
     (uint256 result) = abi.decode(response, (uint256));
     if (result <= 0) {
         revert UnexpectedRequestOr(response);
@@ -178,11 +193,15 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     Request storage request = requests[clrequestToRequests[requestId]];
     request.status = Status.Completed;
     emit RequestCompleted(clrequestToRequests[requestId], request.postId);
-    // Sign and issue the credentials
+
+    // Transfer the amount at the time of fulfillment
+    uint256 amountToTransfer = request.amount;
+    request.requester.transfer(amountToTransfer);
+
     s_lastResponse = response;
     s_lastError = err;
     emit Response(requestId, s_lastResponse, s_lastError, true);
-  }
+}
 
   function getLatestResponse() external view returns (bytes memory) {
     return s_lastResponse;
