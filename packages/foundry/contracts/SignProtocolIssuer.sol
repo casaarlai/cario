@@ -27,8 +27,8 @@ contract SignProtocolIssuer is Ownable {
     function createAndSendAttestation(
         string calldata videoId,
         address amos,
-        uint256 fees,
-        bytes[] calldata recipients
+        address requester,
+        uint256 fees
     ) public {
         //TODO: Later add a required that this can be only called by CarioIntent contract.
         bytes memory attestationData = abi.encode(
@@ -36,6 +36,9 @@ contract SignProtocolIssuer is Ownable {
             amos,
             fees // Replace with actual fees if needed
         );
+        bytes[] memory recipients = new bytes[](2);
+        recipients[0] = abi.encode(amos);//create the attestation and send to Amos
+        recipients[1] = abi.encode(requester);//create the attestation and send to requester
         Attestation memory attestation = Attestation({
            schemaId: schemaId,
             linkedAttestationId: 0,
