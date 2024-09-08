@@ -3,7 +3,7 @@
 import { RefObject, useEffect, useRef, useState } from "react";
 import { ApolloQueryResult, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
-import { encodePacked, formatEther, keccak256, parseEther } from "viem";
+import { encodePacked, formatGwei, keccak256, parseEther } from "viem";
 import { useScaffoldWriteContract } from "~~/hooks/scaffold-eth";
 import { GET_ACCEPTED_AMOS_BY_REQUEST_ID } from "~~/utils/queries/getAmosRequests";
 import { GET_REQUESTS } from "~~/utils/queries/getRequests";
@@ -17,6 +17,11 @@ function hashRequest(_requestId: number, amount: number, _amosId: string, messag
   );
 
   return keccak256(encoded);
+}
+
+// Function to reduce 1000wei every 1 second passing from the request block timestamp
+function reduceAmount(amount: number, blockTimestamp: number): number {
+  return amount - Math.floor((Date.now() / 1000 - blockTimestamp) / 1);
 }
 
 const Market: NextPage = () => {
@@ -67,7 +72,7 @@ const Market: NextPage = () => {
             <thead>
               <tr className="border-0 bg-base-200">
                 <th className="w-2/12">Requester</th>
-                <th className="w-2/12">Amount (ETH)</th>
+                <th className="w-2/12">Amount (Gwei)</th>
                 <th className="w-2/12">Message</th>
                 <th className="w-2/12">Requested on</th>
                 <th className="w-1/12"></th>
@@ -94,7 +99,7 @@ const Market: NextPage = () => {
                     <>
                       <tr key={index} className="border-0 bg-base-100 hover:brightness-110 transition cursor-pointer">
                         <td>{request.requester?.slice(0, 6) + "..." + request.requester?.slice(-4)}</td>
-                        <td>{formatEther(request.amount)}</td>
+                        <td>{formatGwei(BigInt(reduceAmount(request.amount, request.blockTimestamp)))}</td>
                         <td>{hashed.length > 15 ? hashed.slice(0, 15) + "..." : hashed}</td>
                         <td>{getMinutesSince(request.blockTimestamp)}</td>
                         <td className="flex items-center justify-center h-full">
@@ -146,12 +151,15 @@ const AcceptRequest = ({
     fetchPolicy: "no-cache",
   });
 
-  const acceptedAmosIds = !acceptedAmosLoading && acceptedAmos.acceptedAmos_collection[0].amosIds;
+  const acceptedAmosIds =
+    !acceptedAmosLoading &&
+    acceptedAmos.acceptedAmos_collection.length > 0 &&
+    acceptedAmos.acceptedAmos_collection[0].amosIds;
 
   const handleAcceptRequest = async () => {
     const amosId = formRef.current!.amosId.value;
     try {
-      if (acceptedAmosIds.includes(amosId)) {
+      if (acceptedAmosIds && acceptedAmosIds.includes(amosId)) {
         notification.error("You have already accepted this request!");
         throw new Error("You have already accepted this request");
       }
@@ -208,13 +216,13 @@ const AcceptRequest = ({
               </label>
               <label className="form-control w-full">
                 <div className="label">
-                  <span className="label-text">Amount (ETH)</span>
+                  <span className="label-text">Amount (Gwei)</span>
                 </div>
                 <input
                   type="text"
                   name="amount"
                   disabled
-                  value={formatEther(request.amount)}
+                  value={formatGwei(BigInt(reduceAmount(request.amount, request.blockTimestamp)))}
                   className="input input-bordered w-full"
                 />
               </label>
@@ -341,8 +349,9 @@ const CreateRequest = ({
       <div className="modal-box">
         <h3 className="font-bold text-lg">Create a request</h3>
         <p className="py-4">
-          Creating a request adds a new request to the market, allowing multiple Amos (KOLs & celebrities) to fill up
-          your request.
+          Creating a request adds a new request to the market, allowing multiple endorsers (KOLs & celebrities) to
+          accept your request. Based on a first come first serve basis, the first endorser to accept your request will
+          receive the funds. Once complete, you will receive a Sign protocol attestation for the endorsement.
         </p>
         <form ref={formRef} className="flex flex-col gap-4">
           <label className="form-control w-full">

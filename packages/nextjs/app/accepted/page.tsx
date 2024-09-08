@@ -1,6 +1,7 @@
 "use client";
 
 import { RefObject, useEffect, useRef, useState } from "react";
+import { youtubeFunctionString } from "../../../sepolia-test/functions/youtube";
 import { ApolloQueryResult, useQuery } from "@apollo/client";
 import type { NextPage } from "next";
 import { encodePacked, formatEther, keccak256 } from "viem";
@@ -20,7 +21,7 @@ function hashRequest(_requestId: number, amount: number, _amosId: string, messag
 }
 
 const Accepted: NextPage = () => {
-  const acceptRequestModalRef = useRef<HTMLDialogElement>(null);
+  const fulfillRequestModalRef = useRef<HTMLDialogElement>(null);
   const amosIdInputRef = useRef<HTMLInputElement>(null);
 
   const [amosId, setAmosId] = useState<string | null>(null);
@@ -83,7 +84,7 @@ const Accepted: NextPage = () => {
             </button>
           </div>
           {chosenRequest && (
-            <AcceptRequest modalRef={acceptRequestModalRef} refetch={refetchRequests} request={chosenRequest} />
+            <FulfillRequest modalRef={fulfillRequestModalRef} refetch={refetchRequests} request={chosenRequest} />
           )}
         </div>
         <div className="overflow-x-auto shadow-md shadow-secondary rounded">
@@ -134,7 +135,7 @@ const Accepted: NextPage = () => {
                           <button
                             onClick={() => {
                               setChosenRequest(requests[index]);
-                              acceptRequestModalRef.current?.showModal();
+                              fulfillRequestModalRef.current?.showModal();
                             }}
                             className="btn btn-sm btn-neutral"
                           >
@@ -153,7 +154,7 @@ const Accepted: NextPage = () => {
   );
 };
 
-const AcceptRequest = ({
+const FulfillRequest = ({
   modalRef,
   refetch,
   request,
@@ -163,10 +164,9 @@ const AcceptRequest = ({
   request: any;
 }) => {
   const formRef = useRef<HTMLFormElement>(null);
-
   const [step, setStep] = useState("info");
 
-  const { writeContractAsync } = useScaffoldWriteContract("CarioIntent");
+  const hash = hashRequest(request.requestId, request.amount, request.cariosToAmos, request.message, request.requester);
 
   const {
     loading: acceptedAmosLoading,
@@ -181,21 +181,40 @@ const AcceptRequest = ({
 
   const acceptedAmosIds = !acceptedAmosLoading && acceptedAmos.acceptedAmos_collection[0].amosIds;
 
-  const handleAcceptRequest = async () => {
+  const { writeContractAsync } = useScaffoldWriteContract("CarioIntent");
+
+  const handleFulfillRequest = async () => {
     const amosId = formRef.current!.amosId.value;
+    const videoId = formRef.current!.videoId.value.replace("https://youtu.be/", "");
+
     try {
-      if (acceptedAmosIds.includes(amosId)) {
-        notification.error("You have already accepted this request!");
-        throw new Error("You have already accepted this request");
+      if (!acceptedAmosIds.includes(amosId)) {
+        notification.error("You have not accepted this request!");
+        throw new Error("You have not accepted this request");
       }
 
-      await writeContractAsync({
-        functionName: "acceptRequest",
-        args: [request.requestId, amosId],
+      const donHostedSecretsVersion = "1725781618";
+
+      const response = await writeContractAsync({
+        functionName: "sendRequest",
+        args: [
+          youtubeFunctionString, // source
+          "0x", // encryptedSecretsUrls
+          0, // donHostedSecretsSlotID
+          BigInt(donHostedSecretsVersion), // donHostedSecretsVersion
+          request.requestId,
+          [hash, amosId, videoId], // args
+          [], // bytesArgs
+          164n, // subscriptionId
+          300000, // gasLimit
+          "0x66756e2d626173652d7365706f6c69612d310000000000000000000000000000", // donID
+        ],
       });
 
+      console.log(response);
+
       formRef.current?.reset();
-      modalRef.current?.close();
+      setStep("fulfilled");
       refetch();
       refetchAcceptedAmos();
     } catch (e) {
@@ -210,7 +229,7 @@ const AcceptRequest = ({
   return (
     <dialog ref={modalRef} className="modal modal-bottom sm:modal-middle">
       <div className="modal-box">
-        <h3 className="font-bold text-lg">Accept request</h3>
+        <h3 className="font-bold text-lg">Fulfill request</h3>
         {step === "info" && (
           <>
             <p></p>
@@ -267,18 +286,7 @@ const AcceptRequest = ({
                 <div className="label">
                   <span className="label-text">You are to include this hash in your post</span>
                 </div>
-                <textarea
-                  name="message"
-                  className="textarea textarea-bordered h-24"
-                  disabled
-                  value={hashRequest(
-                    request.requestId,
-                    request.amount,
-                    request.cariosToAmos,
-                    request.message,
-                    request.requester,
-                  )}
-                ></textarea>
+                <textarea name="message" className="textarea textarea-bordered h-24" disabled value={hash}></textarea>
               </label>
             </form>
             <div className="modal-action flex items-center gap-2">
@@ -294,8 +302,7 @@ const AcceptRequest = ({
         {step === "confirm" && (
           <>
             <p className="py-4 font-light">
-              If you are not listed under the Amos, you can still accept the request but you will not be eligible to
-              receive the reward even if you fulfil the request.
+              In fulfilling the request, you confirm that you have included the hash in your post.
             </p>
             <form onSubmit={e => e.preventDefault()} ref={formRef} className="flex flex-col gap-4">
               <label className="form-control w-full">
@@ -322,13 +329,37 @@ const AcceptRequest = ({
                   className="input input-bordered w-full"
                 />
               </label>
+              <label className="form-control w-full">
+                <div className="label">
+                  <span className="label-text">Link to your post</span>
+                </div>
+                <input
+                  type="text"
+                  name="videoId"
+                  placeholder="https://youtu.be/..."
+                  className="input input-bordered w-full"
+                />
+              </label>
             </form>
             <div className="modal-action flex items-center gap-2">
               <button onClick={() => setStep("info")} className="btn btn-sm btn-secondary">
                 Back
               </button>
-              <button onClick={handleAcceptRequest} disabled={acceptedAmosLoading} className="btn btn-primary btn-sm">
+              <button onClick={handleFulfillRequest} disabled={acceptedAmosLoading} className="btn btn-primary btn-sm">
                 Confirm
+              </button>
+            </div>
+          </>
+        )}
+        {step === "fulfilled" && (
+          <>
+            <p className="py-4 font-light">
+              Thank you for fulfilling this request! If you included the provided hash, you will receive{" "}
+              {formatEther(request.amount)} ETH in your wallet shortly.
+            </p>
+            <div className="modal-action flex">
+              <button onClick={() => modalRef.current?.close()} className="btn btn-primary btn-sm">
+                Done
               </button>
             </div>
           </>
