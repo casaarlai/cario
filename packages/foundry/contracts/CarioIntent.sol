@@ -150,7 +150,8 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     // args[1]= publicKeyToAmosId[msg.sender];
 
     // Update the minimum bid at point of sendingRequest
-    updateMinimumBid(clrequestToRequests[requestId]);
+    request.amount = getLatestMinimumBid(clrequestToRequests[requestId]);
+
 
     FunctionsRequest.Request memory req;
     req.initializeRequestForInlineJavaScript(source);
@@ -167,7 +168,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     return s_lastRequestId;
   }
 
-  function updateMinimumBid(uint256 _requestId) internal {
+function getLatestMinimumBid(uint256 _requestId) public view returns(uint){
     Request storage request = requests[_requestId];
     uint256 currentTime = block.timestamp;
     uint256 timeElapsed = currentTime - request.createdTime;
@@ -177,8 +178,7 @@ contract CarioIntent is FunctionsClient, ConfirmedOwner {
     if (newAmount <= 0) {
         newAmount = 1; // Minimum bid is 1 wei
     }
-    
-    request.amount = newAmount;
+    return newAmount;
 }
 
 function fulfillRequest(
